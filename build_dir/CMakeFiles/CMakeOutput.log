@@ -260,3 +260,18 @@ Linking C executable cmTryCompileExec1412708875
 gmake[1]: Leaving directory `/gsfs2/home/u32/gmrosier/ece569/build_dir/CMakeFiles/CMakeTmp'
 
 
+Determining if the function clock_gettime exists in the rt passed with the following output:
+Change Dir: /home/u32/gmrosier/ece569/build_dir/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/bin/gmake "cmTryCompileExec1454409076/fast"
+/usr/bin/gmake -f CMakeFiles/cmTryCompileExec1454409076.dir/build.make CMakeFiles/cmTryCompileExec1454409076.dir/build
+gmake[1]: Entering directory `/gsfs2/home/u32/gmrosier/ece569/build_dir/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report /home/u32/gmrosier/ece569/build_dir/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building C object CMakeFiles/cmTryCompileExec1454409076.dir/CheckFunctionExists.c.o
+/opt/rh/devtoolset-1.1/root/usr/bin/cc   --std=gnu99  -Wall -Wno-unused-function -Wno-unused-parameter -Wextra -DCHECK_FUNCTION_EXISTS=clock_gettime   -o CMakeFiles/cmTryCompileExec1454409076.dir/CheckFunctionExists.c.o   -c /usr/share/cmake/Modules/CheckFunctionExists.c
+Linking C executable cmTryCompileExec1454409076
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec1454409076.dir/link.txt --verbose=1
+/opt/rh/devtoolset-1.1/root/usr/bin/cc  --std=gnu99  -Wall -Wno-unused-function -Wno-unused-parameter -Wextra -DCHECK_FUNCTION_EXISTS=clock_gettime    CMakeFiles/cmTryCompileExec1454409076.dir/CheckFunctionExists.c.o  -o cmTryCompileExec1454409076  -L/home/u32/gmrosier/ece569/build_dir/CMakeFiles/CMakeTmp/time.h -rdynamic -lrt -Wl,-rpath,/home/u32/gmrosier/ece569/build_dir/CMakeFiles/CMakeTmp/time.h 
+gmake[1]: Leaving directory `/gsfs2/home/u32/gmrosier/ece569/build_dir/CMakeFiles/CMakeTmp'
+
+

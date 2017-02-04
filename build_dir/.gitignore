@@ -1,0 +1,5 @@
+*.[oa]
+VectorAdd_*
+ImageColorToGrayscale_*
+*.raw
+!vectoradd_output*
