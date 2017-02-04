@@ -13,7 +13,7 @@
 
 #define BLOCK_SIZE  (16)
 
-__global__ ConvertToGrayScale(unsigned char * colorImage, unsigned char * grayImage, int width, int height, int channels)
+__global__ void ConvertToGrayScale(unsigned char * colorImage, unsigned char * grayImage, int width, int height, int channels)
 {
   int x = threadIdx.x + blockIdx.x * blockDim.x; // Column
   int y = threadIdx.y + blockIdx.y * blockDim.y; // Row
