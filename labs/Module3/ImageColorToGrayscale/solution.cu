@@ -10,7 +10,27 @@
     }                                                                     \
   } while (0)
 
-//@@ DEFINE TILE SIZE AND INSERT DEVICE CODE HERE
+
+#define BLOCK_SIZE  (16)
+
+__global__ ConvertToGrayScale(unsigned char * colorImage, unsigned char * grayImage, int width, int height, int channels)
+{
+  int x = threadIdx.x + blockIdx.x * blockDim.x; // Column
+  int y = threadIdx.y + blockIdx.y * blockDim.y; // Row
+
+  if ((x < width) && (y < height))
+  {
+    int grayOffset = y * width + x;
+    int colorOffset = grayOffset * channels;
+
+    unsigned char red = colorImage[colorOffset];
+    unsigned char green = colorImage[colorOffset + 1];
+    unsigned char blue = colorImage[colorOffset + 2];
+
+    float grayValue = 0.21f * red + 0.71f * green + 0.07 * blue;
+    grayImage[grayOffset] = (unsigned char) grayValue;
+  }
+}
 
 int main(int argc, char *argv[]) {
   wbArg_t args;
@@ -59,7 +79,10 @@ int main(int argc, char *argv[]) {
 
   ///////////////////////////////////////////////////////
   wbTime_start(Compute, "Doing the computation on the GPU");
-  //@@ INSERT CODE HERE
+  
+  dim3 DimGrid((imageWidth-1)/BLOCK_SIZE + 1, (imageHeight-1)/BLOCK_SIZE + 1, 1);
+  dim3 DimBlock(BLOCK_SIZE, BLOCK_SIZE, 1);
+  ConvertToGrayScale<<<DimGrid,DimBlock>>>(inputImage, outputImage, imageWidth, imageHeight, imageChannels);
 
   wbTime_stop(Compute, "Doing the computation on the GPU");
 
