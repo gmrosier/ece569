@@ -2,4 +2,6 @@
 VectorAdd_*
 ImageColorToGrayscale_*
 *.raw
+*.ppm
+*.pbm
 !vectoradd_output*

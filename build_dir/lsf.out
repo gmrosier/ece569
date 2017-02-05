@@ -1,47 +1,36 @@
 Sender: LSF System <phpcadmin@gpu54>
-Subject: Job 650037: <module2> in cluster <phpc_cluster> Done
+Subject: Job 650044: <module2> in cluster <phpc_cluster> Done
 
 Job <module2> was submitted from host <elgato-login.hpc.arizona.edu> by user <gmrosier> in cluster <phpc_cluster>.
 Job was executed on host(s) <gpu54>, in queue <windfall>, as user <gmrosier> in cluster <phpc_cluster>.
 </home/u32/gmrosier> was used as the home directory.
 </home/u32/gmrosier/ece569/build_dir> was used as the working directory.
-Started at Sat Feb  4 08:23:44 2017
-Results reported at Sat Feb  4 08:23:45 2017
+Started at Sat Feb  4 09:14:07 2017
+Results reported at Sat Feb  4 09:14:07 2017
 
 Your job looked like:
 
 ------------------------------------------------------------
 # LSBATCH: User input
-###========================================
-#!/bin/bash
-#BSUB -n 1 
-#BSUB -o lsf.out
-#BSUB -e lsf.err
-#BSUB -q "windfall"
-#BSUB -J module2 
-#---------------------------------------------------------------------
-#BSUB -R gpu
-#BSUB -R "span[ptile=2]"
-#mpirun -np 1 ./VectorAdd_Solution -e ./VectorAdd/Dataset/0/output.raw -i ./VectorAdd/Dataset/0/input0.raw,./VectorAdd/Dataset/0/input1.raw -t vector > vectoradd_output0.txt
-#mpirun -np 1 ./VectorAdd_Solution -e ./VectorAdd/Dataset/1/output.raw -i ./VectorAdd/Dataset/1/input0.raw,./VectorAdd/Dataset/1/input1.raw -t vector > vectoradd_output1.txt
-#mpirun -np 1 ./VectorAdd_Solution -e ./VectorAdd/Dataset/2/output.raw -i ./VectorAdd/Dataset/2/input0.raw,./VectorAdd/Dataset/2/input1.raw -t vector > vectoradd_output2.txt
-#mpirun -np 1 ./VectorAdd_Solution -e ./VectorAdd/Dataset/3/output.raw -i ./VectorAdd/Dataset/3/input0.raw,./VectorAdd/Dataset/3/input1.raw -t vector > vectoradd_output3.txt
-#mpirun -np 1 ./VectorAdd_Solution -e ./VectorAdd/Dataset/4/output.raw -i ./VectorAdd/Dataset/4/input0.raw,./VectorAdd/Dataset/4/input1.raw -t vector > vectoradd_output4.txt
-#mpirun -np 1 ./VectorAdd_Solution -e ./VectorAdd/Dataset/5/output.raw -i ./VectorAdd/Dataset/5/input0.raw,./VectorAdd/Dataset/5/input1.raw -t vector > vectoradd_output5.txt
-#mpirun -np 1 ./VectorAdd_Solution -e ./VectorAdd/Dataset/6/output.raw -i ./VectorAdd/Dataset/6/input0.raw,./VectorAdd/Dataset/6/input1.raw -t vector > vectoradd_output6.txt
-#mpirun -np 1 ./VectorAdd_Solution -e ./VectorAdd/Dataset/7/output.raw -i ./VectorAdd/Dataset/7/input0.raw,./VectorAdd/Dataset/7/input1.raw -t vector > vectoradd_output7.txt
-#mpirun -np 1 ./VectorAdd_Solution -e ./VectorAdd/Dataset/8/output.raw -i ./VectorAdd/Dataset/8/input0.raw,./VectorAdd/Dataset/8/input1.raw -t vector > vectoradd_output8.txt
-#mpirun -np 1 ./VectorAdd_Solution -e ./VectorAdd/Dataset/9/output.raw -i ./VectorAdd/Dataset/9/input0.raw,./VectorAdd/Dataset/9/input1.raw -t vector > vectoradd_output9.txt
-mpirun -np 1 ./VectorAdd_Solution -e output.raw -i input0.raw,input1.raw -t vector >vectoradd_output.txt
-###end of script
-
+###======================================== 
+#!/bin/bash 
+#BSUB -n 1  
+#BSUB -o lsf.out 
+#BSUB -e lsf.err 
+#BSUB -q "windfall" 
+#BSUB -J module2  
+#--------------------------------------------------------------------- 
+#BSUB -R gpu 
+#BSUB -R "span[ptile=2]" 
+mpirun -np 1 ./VectorAdd_Solution -e ./output.raw -i input0.raw,input1.raw -t vector > vectoradd_output.txt 
+###end of script 
 ------------------------------------------------------------
 
 Successfully completed.
 
 Resource usage summary:
 
-    CPU time :               0.24 sec.
+    CPU time :               0.23 sec.
     Total Requested Memory : -
     Delta Memory :           -
     (Delta: the difference between total requested memory and actual max usage.)
@@ -55,42 +44,31 @@ PS:
 Read file <lsf.err> for stderr output of this job.
 
 Sender: LSF System <phpcadmin@gpu54>
-Subject: Job 650038: <module2> in cluster <phpc_cluster> Exited
+Subject: Job 650116: <module2> in cluster <phpc_cluster> Exited
 
 Job <module2> was submitted from host <elgato-login.hpc.arizona.edu> by user <gmrosier> in cluster <phpc_cluster>.
 Job was executed on host(s) <gpu54>, in queue <windfall>, as user <gmrosier> in cluster <phpc_cluster>.
 </home/u32/gmrosier> was used as the home directory.
 </home/u32/gmrosier/ece569/build_dir> was used as the working directory.
-Started at Sat Feb  4 08:24:17 2017
-Results reported at Sat Feb  4 08:24:17 2017
+Started at Sat Feb  4 14:44:37 2017
+Results reported at Sat Feb  4 14:44:37 2017
 
 Your job looked like:
 
 ------------------------------------------------------------
 # LSBATCH: User input
-###========================================
-#!/bin/bash
-#BSUB -n 1 
-#BSUB -o lsf.out
-#BSUB -e lsf.err
-#BSUB -q "windfall"
-#BSUB -J module2 
-#---------------------------------------------------------------------
-#BSUB -R gpu
-#BSUB -R "span[ptile=2]"
-#mpirun -np 1 ./VectorAdd_Solution -e ./VectorAdd/Dataset/0/output.raw -i ./VectorAdd/Dataset/0/input0.raw,./VectorAdd/Dataset/0/input1.raw -t vector > vectoradd_output0.txt
-#mpirun -np 1 ./VectorAdd_Solution -e ./VectorAdd/Dataset/1/output.raw -i ./VectorAdd/Dataset/1/input0.raw,./VectorAdd/Dataset/1/input1.raw -t vector > vectoradd_output1.txt
-#mpirun -np 1 ./VectorAdd_Solution -e ./VectorAdd/Dataset/2/output.raw -i ./VectorAdd/Dataset/2/input0.raw,./VectorAdd/Dataset/2/input1.raw -t vector > vectoradd_output2.txt
-#mpirun -np 1 ./VectorAdd_Solution -e ./VectorAdd/Dataset/3/output.raw -i ./VectorAdd/Dataset/3/input0.raw,./VectorAdd/Dataset/3/input1.raw -t vector > vectoradd_output3.txt
-#mpirun -np 1 ./VectorAdd_Solution -e ./VectorAdd/Dataset/4/output.raw -i ./VectorAdd/Dataset/4/input0.raw,./VectorAdd/Dataset/4/input1.raw -t vector > vectoradd_output4.txt
-#mpirun -np 1 ./VectorAdd_Solution -e ./VectorAdd/Dataset/5/output.raw -i ./VectorAdd/Dataset/5/input0.raw,./VectorAdd/Dataset/5/input1.raw -t vector > vectoradd_output5.txt
-#mpirun -np 1 ./VectorAdd_Solution -e ./VectorAdd/Dataset/6/output.raw -i ./VectorAdd/Dataset/6/input0.raw,./VectorAdd/Dataset/6/input1.raw -t vector > vectoradd_output6.txt
-#mpirun -np 1 ./VectorAdd_Solution -e ./VectorAdd/Dataset/7/output.raw -i ./VectorAdd/Dataset/7/input0.raw,./VectorAdd/Dataset/7/input1.raw -t vector > vectoradd_output7.txt
-#mpirun -np 1 ./VectorAdd_Solution -e ./VectorAdd/Dataset/8/output.raw -i ./VectorAdd/Dataset/8/input0.raw,./VectorAdd/Dataset/8/input1.raw -t vector > vectoradd_output8.txt
-#mpirun -np 1 ./VectorAdd_Solution -e ./VectorAdd/Dataset/9/output.raw -i ./VectorAdd/Dataset/9/input0.raw,./VectorAdd/Dataset/9/input1.raw -t vector > vectoradd_output9.txt
-mpirun -np 1 ./VectorAdd_Solution -e output.raw -i input0.raw,input1.raw -t vector >vectoradd_output.txt
-###end of script
-
+###======================================== 
+#!/bin/bash 
+#BSUB -n 1  
+#BSUB -o lsf.out 
+#BSUB -e lsf.err 
+#BSUB -q "windfall" 
+#BSUB -J module2  
+#--------------------------------------------------------------------- 
+#BSUB -R gpu 
+#BSUB -R "span[ptile=2]" 
+mpirun -np 1 ./VectorAdd_Solution -e ./output.raw -i input0.raw,input1.raw -t vector > vectoradd_output.txt 
+###end of script 
 ------------------------------------------------------------
 
 Exited with exit code 127.
@@ -111,210 +89,31 @@ PS:
 Read file <lsf.err> for stderr output of this job.
 
 Sender: LSF System <phpcadmin@gpu54>
-Subject: Job 650039: <module2> in cluster <phpc_cluster> Done
+Subject: Job 650117: <module2> in cluster <phpc_cluster> Done
 
 Job <module2> was submitted from host <elgato-login.hpc.arizona.edu> by user <gmrosier> in cluster <phpc_cluster>.
 Job was executed on host(s) <gpu54>, in queue <windfall>, as user <gmrosier> in cluster <phpc_cluster>.
 </home/u32/gmrosier> was used as the home directory.
 </home/u32/gmrosier/ece569/build_dir> was used as the working directory.
-Started at Sat Feb  4 08:24:52 2017
-Results reported at Sat Feb  4 08:24:53 2017
+Started at Sat Feb  4 14:44:55 2017
+Results reported at Sat Feb  4 14:44:55 2017
 
 Your job looked like:
 
 ------------------------------------------------------------
 # LSBATCH: User input
-###========================================
-#!/bin/bash
-#BSUB -n 1 
-#BSUB -o lsf.out
-#BSUB -e lsf.err
-#BSUB -q "windfall"
-#BSUB -J module2 
-#---------------------------------------------------------------------
-#BSUB -R gpu
-#BSUB -R "span[ptile=2]"
-#mpirun -np 1 ./VectorAdd_Solution -e ./VectorAdd/Dataset/0/output.raw -i ./VectorAdd/Dataset/0/input0.raw,./VectorAdd/Dataset/0/input1.raw -t vector > vectoradd_output0.txt
-#mpirun -np 1 ./VectorAdd_Solution -e ./VectorAdd/Dataset/1/output.raw -i ./VectorAdd/Dataset/1/input0.raw,./VectorAdd/Dataset/1/input1.raw -t vector > vectoradd_output1.txt
-#mpirun -np 1 ./VectorAdd_Solution -e ./VectorAdd/Dataset/2/output.raw -i ./VectorAdd/Dataset/2/input0.raw,./VectorAdd/Dataset/2/input1.raw -t vector > vectoradd_output2.txt
-#mpirun -np 1 ./VectorAdd_Solution -e ./VectorAdd/Dataset/3/output.raw -i ./VectorAdd/Dataset/3/input0.raw,./VectorAdd/Dataset/3/input1.raw -t vector > vectoradd_output3.txt
-#mpirun -np 1 ./VectorAdd_Solution -e ./VectorAdd/Dataset/4/output.raw -i ./VectorAdd/Dataset/4/input0.raw,./VectorAdd/Dataset/4/input1.raw -t vector > vectoradd_output4.txt
-#mpirun -np 1 ./VectorAdd_Solution -e ./VectorAdd/Dataset/5/output.raw -i ./VectorAdd/Dataset/5/input0.raw,./VectorAdd/Dataset/5/input1.raw -t vector > vectoradd_output5.txt
-#mpirun -np 1 ./VectorAdd_Solution -e ./VectorAdd/Dataset/6/output.raw -i ./VectorAdd/Dataset/6/input0.raw,./VectorAdd/Dataset/6/input1.raw -t vector > vectoradd_output6.txt
-#mpirun -np 1 ./VectorAdd_Solution -e ./VectorAdd/Dataset/7/output.raw -i ./VectorAdd/Dataset/7/input0.raw,./VectorAdd/Dataset/7/input1.raw -t vector > vectoradd_output7.txt
-#mpirun -np 1 ./VectorAdd_Solution -e ./VectorAdd/Dataset/8/output.raw -i ./VectorAdd/Dataset/8/input0.raw,./VectorAdd/Dataset/8/input1.raw -t vector > vectoradd_output8.txt
-#mpirun -np 1 ./VectorAdd_Solution -e ./VectorAdd/Dataset/9/output.raw -i ./VectorAdd/Dataset/9/input0.raw,./VectorAdd/Dataset/9/input1.raw -t vector > vectoradd_output9.txt
-mpirun -np 1 ./VectorAdd_Solution -e output.raw -i input0.raw,input1.raw -t vector >vectoradd_output.txt
-###end of script
-
-------------------------------------------------------------
-
-Successfully completed.
-
-Resource usage summary:
-
-    CPU time :               0.24 sec.
-    Total Requested Memory : -
-    Delta Memory :           -
-    (Delta: the difference between total requested memory and actual max usage.)
-
-The output (if any) follows:
-
-
-
-PS:
-
-Read file <lsf.err> for stderr output of this job.
-
-Sender: LSF System <phpcadmin@gpu54>
-Subject: Job 650040: <module2> in cluster <phpc_cluster> Done
-
-Job <module2> was submitted from host <elgato-login.hpc.arizona.edu> by user <gmrosier> in cluster <phpc_cluster>.
-Job was executed on host(s) <gpu54>, in queue <windfall>, as user <gmrosier> in cluster <phpc_cluster>.
-</home/u32/gmrosier> was used as the home directory.
-</home/u32/gmrosier/ece569/build_dir> was used as the working directory.
-Started at Sat Feb  4 08:25:55 2017
-Results reported at Sat Feb  4 08:25:55 2017
-
-Your job looked like:
-
-------------------------------------------------------------
-# LSBATCH: User input
-###========================================
-#!/bin/bash
-#BSUB -n 1 
-#BSUB -o lsf.out
-#BSUB -e lsf.err
-#BSUB -q "windfall"
-#BSUB -J module2 
-#---------------------------------------------------------------------
-#BSUB -R gpu
-#BSUB -R "span[ptile=2]"
-#mpirun -np 1 ./VectorAdd_Solution -e ./VectorAdd/Dataset/0/output.raw -i ./VectorAdd/Dataset/0/input0.raw,./VectorAdd/Dataset/0/input1.raw -t vector > vectoradd_output0.txt
-#mpirun -np 1 ./VectorAdd_Solution -e ./VectorAdd/Dataset/1/output.raw -i ./VectorAdd/Dataset/1/input0.raw,./VectorAdd/Dataset/1/input1.raw -t vector > vectoradd_output1.txt
-#mpirun -np 1 ./VectorAdd_Solution -e ./VectorAdd/Dataset/2/output.raw -i ./VectorAdd/Dataset/2/input0.raw,./VectorAdd/Dataset/2/input1.raw -t vector > vectoradd_output2.txt
-#mpirun -np 1 ./VectorAdd_Solution -e ./VectorAdd/Dataset/3/output.raw -i ./VectorAdd/Dataset/3/input0.raw,./VectorAdd/Dataset/3/input1.raw -t vector > vectoradd_output3.txt
-#mpirun -np 1 ./VectorAdd_Solution -e ./VectorAdd/Dataset/4/output.raw -i ./VectorAdd/Dataset/4/input0.raw,./VectorAdd/Dataset/4/input1.raw -t vector > vectoradd_output4.txt
-#mpirun -np 1 ./VectorAdd_Solution -e ./VectorAdd/Dataset/5/output.raw -i ./VectorAdd/Dataset/5/input0.raw,./VectorAdd/Dataset/5/input1.raw -t vector > vectoradd_output5.txt
-#mpirun -np 1 ./VectorAdd_Solution -e ./VectorAdd/Dataset/6/output.raw -i ./VectorAdd/Dataset/6/input0.raw,./VectorAdd/Dataset/6/input1.raw -t vector > vectoradd_output6.txt
-#mpirun -np 1 ./VectorAdd_Solution -e ./VectorAdd/Dataset/7/output.raw -i ./VectorAdd/Dataset/7/input0.raw,./VectorAdd/Dataset/7/input1.raw -t vector > vectoradd_output7.txt
-#mpirun -np 1 ./VectorAdd_Solution -e ./VectorAdd/Dataset/8/output.raw -i ./VectorAdd/Dataset/8/input0.raw,./VectorAdd/Dataset/8/input1.raw -t vector > vectoradd_output8.txt
-#mpirun -np 1 ./VectorAdd_Solution -e ./VectorAdd/Dataset/9/output.raw -i ./VectorAdd/Dataset/9/input0.raw,./VectorAdd/Dataset/9/input1.raw -t vector > vectoradd_output9.txt
-mpirun -np 1 ./VectorAdd_Solution -e output.raw -i input0.raw,input1.raw -t vector > vectoradd_output.txt
-###end of script
-
-------------------------------------------------------------
-
-Successfully completed.
-
-Resource usage summary:
-
-    CPU time :               0.25 sec.
-    Total Requested Memory : -
-    Delta Memory :           -
-    (Delta: the difference between total requested memory and actual max usage.)
-
-The output (if any) follows:
-
-
-
-PS:
-
-Read file <lsf.err> for stderr output of this job.
-
-Sender: LSF System <phpcadmin@gpu54>
-Subject: Job 650041: <module2> in cluster <phpc_cluster> Done
-
-Job <module2> was submitted from host <elgato-login.hpc.arizona.edu> by user <gmrosier> in cluster <phpc_cluster>.
-Job was executed on host(s) <gpu54>, in queue <windfall>, as user <gmrosier> in cluster <phpc_cluster>.
-</home/u32/gmrosier> was used as the home directory.
-</home/u32/gmrosier/ece569/build_dir> was used as the working directory.
-Started at Sat Feb  4 08:27:33 2017
-Results reported at Sat Feb  4 08:27:34 2017
-
-Your job looked like:
-
-------------------------------------------------------------
-# LSBATCH: User input
-###========================================
-#!/bin/bash
-#BSUB -n 1 
-#BSUB -o lsf.out
-#BSUB -e lsf.err
-#BSUB -q "windfall"
-#BSUB -J module2 
-#---------------------------------------------------------------------
-#BSUB -R gpu
-#BSUB -R "span[ptile=2]"
-#mpirun -np 1 ./VectorAdd_Solution -e ./VectorAdd/Dataset/0/output.raw -i ./VectorAdd/Dataset/0/input0.raw,./VectorAdd/Dataset/0/input1.raw -t vector > vectoradd_output0.txt
-#mpirun -np 1 ./VectorAdd_Solution -e ./VectorAdd/Dataset/1/output.raw -i ./VectorAdd/Dataset/1/input0.raw,./VectorAdd/Dataset/1/input1.raw -t vector > vectoradd_output1.txt
-#mpirun -np 1 ./VectorAdd_Solution -e ./VectorAdd/Dataset/2/output.raw -i ./VectorAdd/Dataset/2/input0.raw,./VectorAdd/Dataset/2/input1.raw -t vector > vectoradd_output2.txt
-#mpirun -np 1 ./VectorAdd_Solution -e ./VectorAdd/Dataset/3/output.raw -i ./VectorAdd/Dataset/3/input0.raw,./VectorAdd/Dataset/3/input1.raw -t vector > vectoradd_output3.txt
-#mpirun -np 1 ./VectorAdd_Solution -e ./VectorAdd/Dataset/4/output.raw -i ./VectorAdd/Dataset/4/input0.raw,./VectorAdd/Dataset/4/input1.raw -t vector > vectoradd_output4.txt
-#mpirun -np 1 ./VectorAdd_Solution -e ./VectorAdd/Dataset/5/output.raw -i ./VectorAdd/Dataset/5/input0.raw,./VectorAdd/Dataset/5/input1.raw -t vector > vectoradd_output5.txt
-#mpirun -np 1 ./VectorAdd_Solution -e ./VectorAdd/Dataset/6/output.raw -i ./VectorAdd/Dataset/6/input0.raw,./VectorAdd/Dataset/6/input1.raw -t vector > vectoradd_output6.txt
-#mpirun -np 1 ./VectorAdd_Solution -e ./VectorAdd/Dataset/7/output.raw -i ./VectorAdd/Dataset/7/input0.raw,./VectorAdd/Dataset/7/input1.raw -t vector > vectoradd_output7.txt
-#mpirun -np 1 ./VectorAdd_Solution -e ./VectorAdd/Dataset/8/output.raw -i ./VectorAdd/Dataset/8/input0.raw,./VectorAdd/Dataset/8/input1.raw -t vector > vectoradd_output8.txt
-#mpirun -np 1 ./VectorAdd_Solution -e ./VectorAdd/Dataset/9/output.raw -i ./VectorAdd/Dataset/9/input0.raw,./VectorAdd/Dataset/9/input1.raw -t vector > vectoradd_output9.txt
-mpirun -np 1 ./VectorAdd_Solution -e output.raw -i input0.raw,input1.raw -t vector > vectoradd_output.txt
-###end of script
-
-------------------------------------------------------------
-
-Successfully completed.
-
-Resource usage summary:
-
-    CPU time :               0.24 sec.
-    Total Requested Memory : -
-    Delta Memory :           -
-    (Delta: the difference between total requested memory and actual max usage.)
-
-The output (if any) follows:
-
-
-
-PS:
-
-Read file <lsf.err> for stderr output of this job.
-
-Sender: LSF System <phpcadmin@gpu54>
-Subject: Job 650042: <module2> in cluster <phpc_cluster> Done
-
-Job <module2> was submitted from host <elgato-login.hpc.arizona.edu> by user <gmrosier> in cluster <phpc_cluster>.
-Job was executed on host(s) <gpu54>, in queue <windfall>, as user <gmrosier> in cluster <phpc_cluster>.
-</home/u32/gmrosier> was used as the home directory.
-</home/u32/gmrosier/ece569/build_dir> was used as the working directory.
-Started at Sat Feb  4 08:28:23 2017
-Results reported at Sat Feb  4 08:28:23 2017
-
-Your job looked like:
-
-------------------------------------------------------------
-# LSBATCH: User input
-###========================================
-#!/bin/bash
-#BSUB -n 1 
-#BSUB -o lsf.out
-#BSUB -e lsf.err
-#BSUB -q "windfall"
-#BSUB -J module2 
-#---------------------------------------------------------------------
-#BSUB -R gpu
-#BSUB -R "span[ptile=2]"
-#mpirun -np 1 ./VectorAdd_Solution -e ./VectorAdd/Dataset/0/output.raw -i ./VectorAdd/Dataset/0/input0.raw,./VectorAdd/Dataset/0/input1.raw -t vector > vectoradd_output0.txt
-#mpirun -np 1 ./VectorAdd_Solution -e ./VectorAdd/Dataset/1/output.raw -i ./VectorAdd/Dataset/1/input0.raw,./VectorAdd/Dataset/1/input1.raw -t vector > vectoradd_output1.txt
-#mpirun -np 1 ./VectorAdd_Solution -e ./VectorAdd/Dataset/2/output.raw -i ./VectorAdd/Dataset/2/input0.raw,./VectorAdd/Dataset/2/input1.raw -t vector > vectoradd_output2.txt
-#mpirun -np 1 ./VectorAdd_Solution -e ./VectorAdd/Dataset/3/output.raw -i ./VectorAdd/Dataset/3/input0.raw,./VectorAdd/Dataset/3/input1.raw -t vector > vectoradd_output3.txt
-#mpirun -np 1 ./VectorAdd_Solution -e ./VectorAdd/Dataset/4/output.raw -i ./VectorAdd/Dataset/4/input0.raw,./VectorAdd/Dataset/4/input1.raw -t vector > vectoradd_output4.txt
-#mpirun -np 1 ./VectorAdd_Solution -e ./VectorAdd/Dataset/5/output.raw -i ./VectorAdd/Dataset/5/input0.raw,./VectorAdd/Dataset/5/input1.raw -t vector > vectoradd_output5.txt
-#mpirun -np 1 ./VectorAdd_Solution -e ./VectorAdd/Dataset/6/output.raw -i ./VectorAdd/Dataset/6/input0.raw,./VectorAdd/Dataset/6/input1.raw -t vector > vectoradd_output6.txt
-#mpirun -np 1 ./VectorAdd_Solution -e ./VectorAdd/Dataset/7/output.raw -i ./VectorAdd/Dataset/7/input0.raw,./VectorAdd/Dataset/7/input1.raw -t vector > vectoradd_output7.txt
-#mpirun -np 1 ./VectorAdd_Solution -e ./VectorAdd/Dataset/8/output.raw -i ./VectorAdd/Dataset/8/input0.raw,./VectorAdd/Dataset/8/input1.raw -t vector > vectoradd_output8.txt
-#mpirun -np 1 ./VectorAdd_Solution -e ./VectorAdd/Dataset/9/output.raw -i ./VectorAdd/Dataset/9/input0.raw,./VectorAdd/Dataset/9/input1.raw -t vector > vectoradd_output9.txt
-mpirun -np 1 ./VectorAdd_Solution -e output.raw -i input0.raw,input1.raw -t vector > vectoradd_output.txt
-###end of script
-
+###======================================== 
+#!/bin/bash 
+#BSUB -n 1  
+#BSUB -o lsf.out 
+#BSUB -e lsf.err 
+#BSUB -q "windfall" 
+#BSUB -J module2  
+#--------------------------------------------------------------------- 
+#BSUB -R gpu 
+#BSUB -R "span[ptile=2]" 
+mpirun -np 1 ./VectorAdd_Solution -e ./output.raw -i input0.raw,input1.raw -t vector > vectoradd_output.txt 
+###end of script 
 ------------------------------------------------------------
 
 Successfully completed.
@@ -325,6 +124,58 @@ Resource usage summary:
     Total Requested Memory : -
     Delta Memory :           -
     (Delta: the difference between total requested memory and actual max usage.)
+
+The output (if any) follows:
+
+
+
+PS:
+
+Read file <lsf.err> for stderr output of this job.
+
+Sender: LSF System <phpcadmin@gpu69>
+Subject: Job 650175: <module2> in cluster <phpc_cluster> Done
+
+Job <module2> was submitted from host <elgato-login.hpc.arizona.edu> by user <gmrosier> in cluster <phpc_cluster>.
+Job was executed on host(s) <gpu69>, in queue <windfall>, as user <gmrosier> in cluster <phpc_cluster>.
+</home/u32/gmrosier> was used as the home directory.
+</home/u32/gmrosier/ece569/build_dir> was used as the working directory.
+Started at Sat Feb  4 17:25:25 2017
+Results reported at Sat Feb  4 17:25:26 2017
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+###========================================
+#!/bin/bash
+#BSUB -n 1 
+#BSUB -o lsf.out
+#BSUB -e lsf.err
+#BSUB -q "windfall"
+#BSUB -J module2 
+#---------------------------------------------------------------------
+#BSUB -R gpu
+#BSUB -R "span[ptile=2]"
+mpirun -np 1 ./ImageColorToGrayscale_Solution -e ./output.pbm -i input.ppm -t image > grayscale_output.txt
+###end of script
+
+------------------------------------------------------------
+
+Successfully completed.
+
+Resource usage summary:
+
+    CPU time :               0.77 sec.
+    Max Memory :             85 MB
+    Average Memory :         85.00 MB
+    Total Requested Memory : -
+    Delta Memory :           -
+    (Delta: the difference between total requested memory and actual max usage.)
+    Max Swap :               283121 MB
+
+    Max Processes :          5
+    Max Threads :            8
 
 The output (if any) follows:
 
