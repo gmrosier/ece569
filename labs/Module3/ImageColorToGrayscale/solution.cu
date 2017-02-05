@@ -13,7 +13,7 @@
 
 #define BLOCK_SIZE  (16)
 
-__global__ void ConvertToGrayScale(unsigned char * colorImage, unsigned char * grayImage, int width, int height, int channels)
+__global__ void ConvertToGrayScale(float * colorImage, float * grayImage, int width, int height, int channels)
 {
   int x = threadIdx.x + blockIdx.x * blockDim.x; // Column
   int y = threadIdx.y + blockIdx.y * blockDim.y; // Row
@@ -82,7 +82,7 @@ int main(int argc, char *argv[]) {
   
   dim3 DimGrid((imageWidth-1)/BLOCK_SIZE + 1, (imageHeight-1)/BLOCK_SIZE + 1, 1);
   dim3 DimBlock(BLOCK_SIZE, BLOCK_SIZE, 1);
-  ConvertToGrayScale<<<DimGrid,DimBlock>>>(inputImage, outputImage, imageWidth, imageHeight, imageChannels);
+  ConvertToGrayScale<<<DimGrid,DimBlock>>>(hostInputImageData, hostOutputImageData, imageWidth, imageHeight, imageChannels);
 
   wbTime_stop(Compute, "Doing the computation on the GPU");
 
