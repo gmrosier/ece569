@@ -23,12 +23,12 @@ __global__ void ConvertToGrayScale(float * colorImage, float * grayImage, int wi
     int grayOffset = y * width + x;
     int colorOffset = grayOffset * channels;
 
-    unsigned char red = colorImage[colorOffset];
-    unsigned char green = colorImage[colorOffset + 1];
-    unsigned char blue = colorImage[colorOffset + 2];
+    float red = colorImage[colorOffset];
+    float green = colorImage[colorOffset + 1];
+    float blue = colorImage[colorOffset + 2];
 
     float grayValue = 0.21f * red + 0.71f * green + 0.07 * blue;
-    grayImage[grayOffset] = (unsigned char) grayValue;
+    grayImage[grayOffset] = grayValue;
   }
 }
 
