@@ -86,7 +86,7 @@ int main(int argc, char *argv[]) {
   
   dim3 DimGrid((imageWidth-1)/BLOCK_SIZE + 1, (imageHeight-1)/BLOCK_SIZE + 1, 1);
   dim3 DimBlock(BLOCK_SIZE, BLOCK_SIZE, 1);
-  ConvertToGrayScale<<<DimGrid,DimBlock>>>(hostInputImageData, hostOutputImageData, imageWidth, imageHeight, imageChannels);
+  ConvertToGrayScale<<<DimGrid,DimBlock>>>(deviceInputImageData, deviceOutputImageData, imageWidth, imageHeight, imageChannels);
 
   wbTime_stop(Compute, "Doing the computation on the GPU");
 
