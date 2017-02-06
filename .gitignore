@@ -1,0 +1,7 @@
+
+labs/Module3/ImageColorToGrayscale/\.vs
+labs/Module3/ImageColorToGrayscale/Debug
+*.vcxproj*
+*.VC.*
+*.sln
+*.pdb
