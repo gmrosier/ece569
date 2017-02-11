@@ -157,8 +157,8 @@ endif (BUILD_LIBWB_LIBRARY)
 
 
 #include(Module2/sources.cmake)
-include(Module3/sources.cmake)
-#include(Module4/sources.cmake)
+#include(Module3/sources.cmake)
+include(Module4/sources.cmake)
 #include(Module7/sources.cmake)
 #include(Module8/sources.cmake)
 #include(Module9/sources.cmake)
