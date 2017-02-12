@@ -43,10 +43,11 @@ int main(int argc, char **argv) {
   hostB = (float *)wbImport(wbArg_getInputFile(args, 1), &numBRows,
                             &numBColumns);
   //@@ Set numCRows and numCColumns
-  numCRows    = 0;   // set to correct value
-  numCColumns = 0;   // set to correct value
+  numCRows    = numARows;   // set to correct value
+  numCColumns = numBRows;   // set to correct value
   //@@ Allocate the hostC matrix
-  
+  hostC = (float*) malloc(numCRows * numCColumns * sizeof(float));
+
   wbTime_stop(Generic, "Importing data and creating memory on host");
 
   wbLog(TRACE, "The dimensions of A are ", numARows, " x ", numAColumns);
@@ -54,12 +55,28 @@ int main(int argc, char **argv) {
   wbLog(TRACE, "The dimensions of C are ", numCRows, " x ", numCColumns);
   
   wbTime_start(GPU, "Allocating GPU memory.");
-  //@@ Allocate GPU memory here for A, B and C
+
+  if (cudaMalloc(&deviceA, numARows*numAColumns*sizeof(float)) != cudaSuccess)
+  {
+	  wbLog(TRACE, "Unable to Allocation Memory on GPU");
+  }
+
+  if (cudaMalloc(&deviceB, numBRows*numBColumns * sizeof(float)) != cudaSuccess)
+  {
+	  wbLog(TRACE, "Unable to Allocation Memory on GPU");
+  }
+
+  if (cudaMalloc(&deviceC, numCRows*numCColumns * sizeof(float)) != cudaSuccess)
+  {
+	  wbLog(TRACE, "Unable to Allocation Memory on GPU");
+  }
 
   wbTime_stop(GPU, "Allocating GPU memory.");
 
   wbTime_start(GPU, "Copying input memory to the GPU.");
-  //@@ Copy memory to the GPU here for A and B
+
+  cudaMemcpy(deviceA, hostA, numARows*numAColumns * sizeof(float), cudaMemcpyHostToDevice);
+  cudaMemcpy(deviceB, hostB, numBRows*numBColumns * sizeof(float), cudaMemcpyHostToDevice);
 
   wbTime_stop(GPU, "Copying input memory to the GPU.");
 
@@ -75,11 +92,13 @@ int main(int argc, char **argv) {
 
   wbTime_start(Copy, "Copying output memory to the CPU");
   //@@ Copy the GPU memory back to the CPU here
-
+  cudaMemcpy(hostC, deviceC, numCRows*numCColumns * sizeof(float), cudaMemcpyDeviceToHost);
   wbTime_stop(Copy, "Copying output memory to the CPU");
 
   wbTime_start(GPU, "Freeing GPU Memory");
-  //@@ Free the GPU memory here
+  cudaFree(deviceA);
+  cudaFree(deviceB);
+  cudaFree(deviceC);
 
   wbTime_stop(GPU, "Freeing GPU Memory");
 
