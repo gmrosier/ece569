@@ -1,6 +1,8 @@
 
 #include <wb.h>
 
+#define BLOCK_SIZE  (16)
+
 #define wbCheck(stmt)                                                     \
   do {                                                                    \
     cudaError_t err = stmt;                                               \
@@ -15,8 +17,23 @@
 __global__ void matrixMultiply(float *A, float *B, float *C, int numARows,
                                int numAColumns, int numBRows,
                                int numBColumns, int numCRows,
-                               int numCColumns) {
-  //@@ Insert code to implement basic matrix multiplication here
+                               int numCColumns)
+{
+	int col = threadIdx.x + blockIdx.x * blockDim.x; // Column
+	int row = threadIdx.y + blockIdx.y * blockDim.y; // Row
+	int width = numBColumns;
+	int height = numARows;
+	int multiSize = (numAColumns < numBRows) ? numAColumns : numBRows;
+
+	if ((row < height) && (col < width))
+	{
+		float value = 0;
+		for (int i = 0; i < multiSize; ++i)
+		{
+			value += A[row * numAColumns + i] * B[i * numBColumns + col];
+		}
+		C[row*width + col] = value;
+	}
 }
 
 int main(int argc, char **argv) {
@@ -83,10 +100,11 @@ int main(int argc, char **argv) {
   //@@ Initialize the grid and block dimensions here
   // set block size to 16,16 and determine the grid dimensions
   // use dim3 structure for setting block and grid dimensions
+  dim3 DimGrid((numCColumns-1)/BLOCK_SIZE + 1, (numCRows-1)/BLOCK_SIZE + 1, 1);
+  dim3 DimBlock(BLOCK_SIZE, BLOCK_SIZE, 1);
 
   wbTime_start(Compute, "Performing CUDA computation");
-  //@@ Launch the GPU Kernel here
-
+  matrixMultiply<<<DimGrid, DimBlock >>>(deviceA, deviceB, deviceC, numARows, numAColumns, numBRows, numBColumns, numCRows, numCColumns);
   cudaDeviceSynchronize();
   wbTime_stop(Compute, "Performing CUDA computation");
 

@@ -7,3 +7,5 @@ labs/Module3/ImageColorToGrayscale/Debug
 *.pdb
 /labs/Module4/BasicMatrixMultiplication/Debug
 /labs/Module4/BasicMatrixMultiplication/.vs/BasicMatrixMultiplication/v14
+
+*.raw
