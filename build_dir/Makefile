@@ -102,56 +102,56 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named ImageColorToGrayscale_DatasetGenerator
+# Target rules for targets named BasicMatrixMultiplication_DatasetGenerator
 
 # Build rule for target.
-ImageColorToGrayscale_DatasetGenerator: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 ImageColorToGrayscale_DatasetGenerator
-.PHONY : ImageColorToGrayscale_DatasetGenerator
+BasicMatrixMultiplication_DatasetGenerator: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 BasicMatrixMultiplication_DatasetGenerator
+.PHONY : BasicMatrixMultiplication_DatasetGenerator
 
 # fast build rule for target.
-ImageColorToGrayscale_DatasetGenerator/fast:
-	$(MAKE) -f CMakeFiles/ImageColorToGrayscale_DatasetGenerator.dir/build.make CMakeFiles/ImageColorToGrayscale_DatasetGenerator.dir/build
-.PHONY : ImageColorToGrayscale_DatasetGenerator/fast
+BasicMatrixMultiplication_DatasetGenerator/fast:
+	$(MAKE) -f CMakeFiles/BasicMatrixMultiplication_DatasetGenerator.dir/build.make CMakeFiles/BasicMatrixMultiplication_DatasetGenerator.dir/build
+.PHONY : BasicMatrixMultiplication_DatasetGenerator/fast
 
 #=============================================================================
-# Target rules for targets named ImageColorToGrayscale_Solution
+# Target rules for targets named BasicMatrixMultiplication_Solution
 
 # Build rule for target.
-ImageColorToGrayscale_Solution: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 ImageColorToGrayscale_Solution
-.PHONY : ImageColorToGrayscale_Solution
+BasicMatrixMultiplication_Solution: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 BasicMatrixMultiplication_Solution
+.PHONY : BasicMatrixMultiplication_Solution
 
 # fast build rule for target.
-ImageColorToGrayscale_Solution/fast:
-	$(MAKE) -f CMakeFiles/ImageColorToGrayscale_Solution.dir/build.make CMakeFiles/ImageColorToGrayscale_Solution.dir/build
-.PHONY : ImageColorToGrayscale_Solution/fast
+BasicMatrixMultiplication_Solution/fast:
+	$(MAKE) -f CMakeFiles/BasicMatrixMultiplication_Solution.dir/build.make CMakeFiles/BasicMatrixMultiplication_Solution.dir/build
+.PHONY : BasicMatrixMultiplication_Solution/fast
 
 #=============================================================================
-# Target rules for targets named VectorAdd_DatasetGenerator
+# Target rules for targets named TiledMatrixMultiplication_DatasetGenerator
 
 # Build rule for target.
-VectorAdd_DatasetGenerator: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 VectorAdd_DatasetGenerator
-.PHONY : VectorAdd_DatasetGenerator
+TiledMatrixMultiplication_DatasetGenerator: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 TiledMatrixMultiplication_DatasetGenerator
+.PHONY : TiledMatrixMultiplication_DatasetGenerator
 
 # fast build rule for target.
-VectorAdd_DatasetGenerator/fast:
-	$(MAKE) -f CMakeFiles/VectorAdd_DatasetGenerator.dir/build.make CMakeFiles/VectorAdd_DatasetGenerator.dir/build
-.PHONY : VectorAdd_DatasetGenerator/fast
+TiledMatrixMultiplication_DatasetGenerator/fast:
+	$(MAKE) -f CMakeFiles/TiledMatrixMultiplication_DatasetGenerator.dir/build.make CMakeFiles/TiledMatrixMultiplication_DatasetGenerator.dir/build
+.PHONY : TiledMatrixMultiplication_DatasetGenerator/fast
 
 #=============================================================================
-# Target rules for targets named VectorAdd_Solution
+# Target rules for targets named TiledMatrixMultiplication_Solution
 
 # Build rule for target.
-VectorAdd_Solution: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 VectorAdd_Solution
-.PHONY : VectorAdd_Solution
+TiledMatrixMultiplication_Solution: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 TiledMatrixMultiplication_Solution
+.PHONY : TiledMatrixMultiplication_Solution
 
 # fast build rule for target.
-VectorAdd_Solution/fast:
-	$(MAKE) -f CMakeFiles/VectorAdd_Solution.dir/build.make CMakeFiles/VectorAdd_Solution.dir/build
-.PHONY : VectorAdd_Solution/fast
+TiledMatrixMultiplication_Solution/fast:
+	$(MAKE) -f CMakeFiles/TiledMatrixMultiplication_Solution.dir/build.make CMakeFiles/TiledMatrixMultiplication_Solution.dir/build
+.PHONY : TiledMatrixMultiplication_Solution/fast
 
 #=============================================================================
 # Target rules for targets named wb
@@ -166,53 +166,53 @@ wb/fast:
 	$(MAKE) -f CMakeFiles/wb.dir/build.make CMakeFiles/wb.dir/build
 .PHONY : wb/fast
 
-Module3/ImageColorToGrayscale/dataset_generator.o: Module3/ImageColorToGrayscale/dataset_generator.cpp.o
-.PHONY : Module3/ImageColorToGrayscale/dataset_generator.o
+Module4/BasicMatrixMultiplication/dataset_generator.o: Module4/BasicMatrixMultiplication/dataset_generator.cpp.o
+.PHONY : Module4/BasicMatrixMultiplication/dataset_generator.o
 
 # target to build an object file
-Module3/ImageColorToGrayscale/dataset_generator.cpp.o:
-	$(MAKE) -f CMakeFiles/ImageColorToGrayscale_DatasetGenerator.dir/build.make CMakeFiles/ImageColorToGrayscale_DatasetGenerator.dir/Module3/ImageColorToGrayscale/dataset_generator.cpp.o
-.PHONY : Module3/ImageColorToGrayscale/dataset_generator.cpp.o
+Module4/BasicMatrixMultiplication/dataset_generator.cpp.o:
+	$(MAKE) -f CMakeFiles/BasicMatrixMultiplication_DatasetGenerator.dir/build.make CMakeFiles/BasicMatrixMultiplication_DatasetGenerator.dir/Module4/BasicMatrixMultiplication/dataset_generator.cpp.o
+.PHONY : Module4/BasicMatrixMultiplication/dataset_generator.cpp.o
 
-Module3/ImageColorToGrayscale/dataset_generator.i: Module3/ImageColorToGrayscale/dataset_generator.cpp.i
-.PHONY : Module3/ImageColorToGrayscale/dataset_generator.i
+Module4/BasicMatrixMultiplication/dataset_generator.i: Module4/BasicMatrixMultiplication/dataset_generator.cpp.i
+.PHONY : Module4/BasicMatrixMultiplication/dataset_generator.i
 
 # target to preprocess a source file
-Module3/ImageColorToGrayscale/dataset_generator.cpp.i:
-	$(MAKE) -f CMakeFiles/ImageColorToGrayscale_DatasetGenerator.dir/build.make CMakeFiles/ImageColorToGrayscale_DatasetGenerator.dir/Module3/ImageColorToGrayscale/dataset_generator.cpp.i
-.PHONY : Module3/ImageColorToGrayscale/dataset_generator.cpp.i
+Module4/BasicMatrixMultiplication/dataset_generator.cpp.i:
+	$(MAKE) -f CMakeFiles/BasicMatrixMultiplication_DatasetGenerator.dir/build.make CMakeFiles/BasicMatrixMultiplication_DatasetGenerator.dir/Module4/BasicMatrixMultiplication/dataset_generator.cpp.i
+.PHONY : Module4/BasicMatrixMultiplication/dataset_generator.cpp.i
 
-Module3/ImageColorToGrayscale/dataset_generator.s: Module3/ImageColorToGrayscale/dataset_generator.cpp.s
-.PHONY : Module3/ImageColorToGrayscale/dataset_generator.s
+Module4/BasicMatrixMultiplication/dataset_generator.s: Module4/BasicMatrixMultiplication/dataset_generator.cpp.s
+.PHONY : Module4/BasicMatrixMultiplication/dataset_generator.s
 
 # target to generate assembly for a file
-Module3/ImageColorToGrayscale/dataset_generator.cpp.s:
-	$(MAKE) -f CMakeFiles/ImageColorToGrayscale_DatasetGenerator.dir/build.make CMakeFiles/ImageColorToGrayscale_DatasetGenerator.dir/Module3/ImageColorToGrayscale/dataset_generator.cpp.s
-.PHONY : Module3/ImageColorToGrayscale/dataset_generator.cpp.s
+Module4/BasicMatrixMultiplication/dataset_generator.cpp.s:
+	$(MAKE) -f CMakeFiles/BasicMatrixMultiplication_DatasetGenerator.dir/build.make CMakeFiles/BasicMatrixMultiplication_DatasetGenerator.dir/Module4/BasicMatrixMultiplication/dataset_generator.cpp.s
+.PHONY : Module4/BasicMatrixMultiplication/dataset_generator.cpp.s
 
-Module3/VectorAdd/dataset_generator.o: Module3/VectorAdd/dataset_generator.cpp.o
-.PHONY : Module3/VectorAdd/dataset_generator.o
+Module4/TiledMatrixMultiplication/dataset_generator.o: Module4/TiledMatrixMultiplication/dataset_generator.cpp.o
+.PHONY : Module4/TiledMatrixMultiplication/dataset_generator.o
 
 # target to build an object file
-Module3/VectorAdd/dataset_generator.cpp.o:
-	$(MAKE) -f CMakeFiles/VectorAdd_DatasetGenerator.dir/build.make CMakeFiles/VectorAdd_DatasetGenerator.dir/Module3/VectorAdd/dataset_generator.cpp.o
-.PHONY : Module3/VectorAdd/dataset_generator.cpp.o
+Module4/TiledMatrixMultiplication/dataset_generator.cpp.o:
+	$(MAKE) -f CMakeFiles/TiledMatrixMultiplication_DatasetGenerator.dir/build.make CMakeFiles/TiledMatrixMultiplication_DatasetGenerator.dir/Module4/TiledMatrixMultiplication/dataset_generator.cpp.o
+.PHONY : Module4/TiledMatrixMultiplication/dataset_generator.cpp.o
 
-Module3/VectorAdd/dataset_generator.i: Module3/VectorAdd/dataset_generator.cpp.i
-.PHONY : Module3/VectorAdd/dataset_generator.i
+Module4/TiledMatrixMultiplication/dataset_generator.i: Module4/TiledMatrixMultiplication/dataset_generator.cpp.i
+.PHONY : Module4/TiledMatrixMultiplication/dataset_generator.i
 
 # target to preprocess a source file
-Module3/VectorAdd/dataset_generator.cpp.i:
-	$(MAKE) -f CMakeFiles/VectorAdd_DatasetGenerator.dir/build.make CMakeFiles/VectorAdd_DatasetGenerator.dir/Module3/VectorAdd/dataset_generator.cpp.i
-.PHONY : Module3/VectorAdd/dataset_generator.cpp.i
+Module4/TiledMatrixMultiplication/dataset_generator.cpp.i:
+	$(MAKE) -f CMakeFiles/TiledMatrixMultiplication_DatasetGenerator.dir/build.make CMakeFiles/TiledMatrixMultiplication_DatasetGenerator.dir/Module4/TiledMatrixMultiplication/dataset_generator.cpp.i
+.PHONY : Module4/TiledMatrixMultiplication/dataset_generator.cpp.i
 
-Module3/VectorAdd/dataset_generator.s: Module3/VectorAdd/dataset_generator.cpp.s
-.PHONY : Module3/VectorAdd/dataset_generator.s
+Module4/TiledMatrixMultiplication/dataset_generator.s: Module4/TiledMatrixMultiplication/dataset_generator.cpp.s
+.PHONY : Module4/TiledMatrixMultiplication/dataset_generator.s
 
 # target to generate assembly for a file
-Module3/VectorAdd/dataset_generator.cpp.s:
-	$(MAKE) -f CMakeFiles/VectorAdd_DatasetGenerator.dir/build.make CMakeFiles/VectorAdd_DatasetGenerator.dir/Module3/VectorAdd/dataset_generator.cpp.s
-.PHONY : Module3/VectorAdd/dataset_generator.cpp.s
+Module4/TiledMatrixMultiplication/dataset_generator.cpp.s:
+	$(MAKE) -f CMakeFiles/TiledMatrixMultiplication_DatasetGenerator.dir/build.make CMakeFiles/TiledMatrixMultiplication_DatasetGenerator.dir/Module4/TiledMatrixMultiplication/dataset_generator.cpp.s
+.PHONY : Module4/TiledMatrixMultiplication/dataset_generator.cpp.s
 
 libwb/vendor/json11.o: libwb/vendor/json11.cpp.o
 .PHONY : libwb/vendor/json11.o
@@ -676,19 +676,19 @@ help:
 	@echo "... all (the default if no target is provided)"
 	@echo "... clean"
 	@echo "... depend"
-	@echo "... ImageColorToGrayscale_DatasetGenerator"
-	@echo "... ImageColorToGrayscale_Solution"
-	@echo "... VectorAdd_DatasetGenerator"
-	@echo "... VectorAdd_Solution"
+	@echo "... BasicMatrixMultiplication_DatasetGenerator"
+	@echo "... BasicMatrixMultiplication_Solution"
+	@echo "... TiledMatrixMultiplication_DatasetGenerator"
+	@echo "... TiledMatrixMultiplication_Solution"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... wb"
-	@echo "... Module3/ImageColorToGrayscale/dataset_generator.o"
-	@echo "... Module3/ImageColorToGrayscale/dataset_generator.i"
-	@echo "... Module3/ImageColorToGrayscale/dataset_generator.s"
-	@echo "... Module3/VectorAdd/dataset_generator.o"
-	@echo "... Module3/VectorAdd/dataset_generator.i"
-	@echo "... Module3/VectorAdd/dataset_generator.s"
+	@echo "... Module4/BasicMatrixMultiplication/dataset_generator.o"
+	@echo "... Module4/BasicMatrixMultiplication/dataset_generator.i"
+	@echo "... Module4/BasicMatrixMultiplication/dataset_generator.s"
+	@echo "... Module4/TiledMatrixMultiplication/dataset_generator.o"
+	@echo "... Module4/TiledMatrixMultiplication/dataset_generator.i"
+	@echo "... Module4/TiledMatrixMultiplication/dataset_generator.s"
 	@echo "... libwb/vendor/json11.o"
 	@echo "... libwb/vendor/json11.i"
 	@echo "... libwb/vendor/json11.s"

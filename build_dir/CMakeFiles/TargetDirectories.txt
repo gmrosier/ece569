@@ -1,5 +1,0 @@
-/home/u32/gmrosier/ece569/build_dir/CMakeFiles/ImageColorToGrayscale_DatasetGenerator.dir
-/home/u32/gmrosier/ece569/build_dir/CMakeFiles/ImageColorToGrayscale_Solution.dir
-/home/u32/gmrosier/ece569/build_dir/CMakeFiles/VectorAdd_DatasetGenerator.dir
-/home/u32/gmrosier/ece569/build_dir/CMakeFiles/VectorAdd_Solution.dir
-/home/u32/gmrosier/ece569/build_dir/CMakeFiles/wb.dir
