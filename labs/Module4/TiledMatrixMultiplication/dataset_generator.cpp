@@ -96,7 +96,7 @@ static void create_dataset(int datasetNum, int numARows, int numACols,
   compute(output_data, input0_data, input1_data, numARows, numACols,
           numBRows, numBCols, numCRows, numCCols);
 
-  write_transpose_data(input0_file_name, input0_data, numARows, numACols);
+  write_data(input0_file_name, input0_data, numARows, numACols);
   write_data(input1_file_name, input1_data, numBRows, numBCols);
   write_data(output_file_name, output_data, numCRows, numCCols);
 

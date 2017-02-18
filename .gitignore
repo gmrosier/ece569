@@ -1,11 +1,15 @@
 
-labs/Module3/ImageColorToGrayscale/\.vs
-labs/Module3/ImageColorToGrayscale/Debug
 *.vcxproj*
 *.VC.*
 *.sln
 *.pdb
-/labs/Module4/BasicMatrixMultiplication/Debug
-/labs/Module4/BasicMatrixMultiplication/.vs/BasicMatrixMultiplication/v14
-
 *.raw
+
+labs/Module3/ImageColorToGrayscale/\.vs
+labs/Module3/ImageColorToGrayscale/Debug
+
+/labs/Module4/BasicMatrixMultiplication/Debug
+/labs/Module4/BasicMatrixMultiplication/\.vs
+
+/labs/Module4/TiledMatrixMultiplication/Debug
+/labs/Module4/TiledMatrixMultiplication/\.vs
