@@ -1,0 +1,20 @@
+For the histogram kernel, how many global memory reads are being performed by your kernel? explain.
+Answer: 
+ 
+For the histogram kernel, how many global memory writes are being performed by your kernel? explain.
+Answer: 
+
+For the histogram kernel, how many atomic operations are being performed by your kernel? explain.
+Answer: 
+
+Experiment1: Run data set 5 for 10 times and calculate the average execution time for each version of the kernel. Indicate the total execution time for each. 
+Version1-Interleaved: 
+Version2-Privatized: 
+
+Experiment2: Now create a data set of size 500,000 with each element having the same value.  Run for 10 times and calculate the average execution time for each version of the kernel. Indicate the total execution time for each. 
+
+Version1-Interleaved: 
+Version2-Privatized: 
+
+Discuss your findings based on experiments 1 and 2. 
+Answer: 
