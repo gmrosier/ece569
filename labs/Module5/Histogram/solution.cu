@@ -38,11 +38,11 @@ __global__ void histogram_kernel(unsigned int *input, unsigned int *bins,
 
 /*  
    version 2: shared memory with privitization
-
-__global__ void histogram_private_kernel(unsigned int *input, unsigned int *bins,
-                                 unsigned int num_elements,
-                                 unsigned int num_bins) {
 */
+__global__ void histogram_private_kernel(unsigned int *input, unsigned int *bins,
+    unsigned int num_elements, unsigned int num_bins)
+{
+}
 
 /* Cliping Kernel */
 __global__ void histogram_cliping(unsigned int * bins, unsigned int num_bins)
