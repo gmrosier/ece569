@@ -42,6 +42,35 @@ __global__ void histogram_kernel(unsigned int *input, unsigned int *bins,
 __global__ void histogram_private_kernel(unsigned int *input, unsigned int *bins,
     unsigned int num_elements, unsigned int num_bins)
 {
+    extern __shared__ unsigned int sBins[];
+
+    unsigned int i = threadIdx.x + blockDim.x * blockIdx.x;
+    unsigned int stride = blockDim.x * gridDim.x;
+
+    // Phase 1 - Clear Bins
+    if (i < num_bins)
+    {
+        sBins[i] = 0;
+    }
+    __syncthreads();
+
+    // Phase 2 - Add to Shared Bins
+    while (i < num_elements)
+    {
+        unsigned int value = input[i];
+        if (value < num_bins)
+        {
+            atomicAdd(&sBins[value], 1);
+        }
+        i += stride;
+    }
+    __syncthreads();
+
+    // Phase 3 - Add Bins to Global Memory
+    if (i < num_bins)
+    {
+        atomicAdd(&bins[i], sBins[i]);
+    }
 }
 
 /* Cliping Kernel */
@@ -101,7 +130,8 @@ int main(int argc, char *argv[]) {
   // ----------------------------------------------------------
   wbLog(TRACE, "Launching kernel");
   wbTime_start(Compute, "Performing CUDA computation");
-  histogram_kernel<<< 4096 / BLOCK_SIZE, BLOCK_SIZE >>>(deviceInput, deviceBins, inputLength, NUM_BINS);
+  //histogram_kernel<<< 4096 / BLOCK_SIZE, BLOCK_SIZE >>>(deviceInput, deviceBins, inputLength, NUM_BINS);
+  histogram_private_kernel << < 4096 / BLOCK_SIZE, BLOCK_SIZE, NUM_BINS * sizeof(unsigned int) >> >(deviceInput, deviceBins, inputLength, NUM_BINS);
   cudaDeviceSynchronize();
   histogram_cliping << < 4096 / BLOCK_SIZE, BLOCK_SIZE >> > (deviceBins, NUM_BINS);
   cudaDeviceSynchronize();
