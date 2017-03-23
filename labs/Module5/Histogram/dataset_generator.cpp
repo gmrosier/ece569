@@ -13,6 +13,14 @@ static void compute(unsigned int *bins, unsigned int *input, int num) {
   }
 }
 
+static unsigned int *generate_data_fixed(size_t n, unsigned int value) {
+    unsigned int *data = (unsigned int *)malloc(sizeof(unsigned int) * n);
+    for (unsigned int i = 0; i < n; i++) {
+        data[i] = value;
+    }
+    return data;
+}
+
 static unsigned int *generate_data(size_t n, unsigned int num_bins) {
   unsigned int *data = (unsigned int *)malloc(sizeof(unsigned int) * n);
   for (unsigned int i = 0; i < n; i++) {
@@ -29,6 +37,28 @@ static void write_data(char *file_name, unsigned int *data, int num) {
   }
   fflush(handle);
   fclose(handle);
+}
+
+static void create_dataset_fixed(int datasetNum, size_t input_length,
+                                 size_t num_bins, unsigned int value)
+{
+    const char *dir_name =
+        wbDirectory_create(wbPath_join(base_dir, datasetNum));
+
+    char *input_file_name = wbPath_join(dir_name, "input.raw");
+    char *output_file_name = wbPath_join(dir_name, "output.raw");
+
+    unsigned int *input_data = generate_data_fixed(input_length, value);
+    unsigned int *output_data =
+        (unsigned int *)calloc(sizeof(unsigned int), num_bins);
+
+    compute(output_data, input_data, input_length);
+
+    write_data(input_file_name, input_data, input_length);
+    write_data(output_file_name, output_data, num_bins);
+
+    free(input_data);
+    free(output_data);
 }
 
 static void create_dataset(int datasetNum, size_t input_length,
@@ -62,5 +92,6 @@ int main() {
   create_dataset(3, 511, NUM_BINS);
   create_dataset(4, 1, NUM_BINS);
   create_dataset(5, 500000, NUM_BINS);
+  create_dataset_fixed(6, 500000, NUM_BINS, 554);
   return 0;
 }
