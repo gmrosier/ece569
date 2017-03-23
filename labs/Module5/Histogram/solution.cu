@@ -92,16 +92,19 @@ int main(int argc, char *argv[]) {
   wbArg_t args;
   int inputLength;
   unsigned int *hostInput;
-  unsigned int *hostBins;
+  unsigned int *hostBins1;
+  unsigned int *hostBins2;
   unsigned int *deviceInput;
-  unsigned int *deviceBins;
+  unsigned int *deviceBins1;
+  unsigned int *deviceBins2;
 
   args = wbArg_read(argc, argv);
 
   wbTime_start(Generic, "Importing data and creating memory on host");
   hostInput = (unsigned int *)wbImport(wbArg_getInputFile(args, 0),
                                        &inputLength, "Integer");
-  hostBins = (unsigned int *)malloc(NUM_BINS * sizeof(unsigned int));
+  hostBins1 = (unsigned int *)malloc(NUM_BINS * sizeof(unsigned int));
+  hostBins2 = (unsigned int *)malloc(NUM_BINS * sizeof(unsigned int));
   wbTime_stop(Generic, "Importing data and creating memory on host");
 
   wbLog(TRACE, "The input length is ", inputLength);
@@ -113,7 +116,12 @@ int main(int argc, char *argv[]) {
       wbLog(TRACE, "Unable to Allocation Memory on GPU");
   }
 
-  if (cudaMalloc(&deviceBins, NUM_BINS * sizeof(unsigned int)) != cudaSuccess)
+  if (cudaMalloc(&deviceBins1, NUM_BINS * sizeof(unsigned int)) != cudaSuccess)
+  {
+      wbLog(TRACE, "Unable to Allocation Memory on GPU");
+  }
+
+  if (cudaMalloc(&deviceBins2, NUM_BINS * sizeof(unsigned int)) != cudaSuccess)
   {
       wbLog(TRACE, "Unable to Allocation Memory on GPU");
   }
@@ -122,36 +130,52 @@ int main(int argc, char *argv[]) {
 
   wbTime_start(GPU, "Copying input memory to the GPU.");
   cudaMemcpy(deviceInput, hostInput, inputLength * sizeof(unsigned int), cudaMemcpyHostToDevice);
-  cudaMemset(deviceBins, 0, NUM_BINS * sizeof(unsigned int));
+  cudaMemset(deviceBins1, 0, NUM_BINS * sizeof(unsigned int));
+  cudaMemset(deviceBins2, 0, NUM_BINS * sizeof(unsigned int));
   CUDA_CHECK(cudaDeviceSynchronize());
   wbTime_stop(GPU, "Copying input memory to the GPU.");
 
-  // Launch kernel
+  // Launch kernel 1 - Global
   // ----------------------------------------------------------
-  wbLog(TRACE, "Launching kernel");
-  wbTime_start(Compute, "Performing CUDA computation");
-  histogram_kernel<<< 4096 / BLOCK_SIZE, BLOCK_SIZE >>>(deviceInput, deviceBins, inputLength, NUM_BINS);
-  //histogram_private_kernel << < 4096 / BLOCK_SIZE, BLOCK_SIZE, NUM_BINS * sizeof(unsigned int) >> >(deviceInput, deviceBins, inputLength, NUM_BINS);
+  wbLog(TRACE, "Launching kernel 1");
+  wbTime_start(Compute, "Elapsed kernel time (Version 1):");
+  histogram_kernel<<< 4096 / BLOCK_SIZE, BLOCK_SIZE >>>(deviceInput, deviceBins1, inputLength, NUM_BINS);
+    cudaDeviceSynchronize();
+  histogram_cliping << < 4096 / BLOCK_SIZE, BLOCK_SIZE >> > (deviceBins1, NUM_BINS);
   cudaDeviceSynchronize();
-  histogram_cliping << < 4096 / BLOCK_SIZE, BLOCK_SIZE >> > (deviceBins, NUM_BINS);
-  cudaDeviceSynchronize();
-  wbTime_stop(Compute, "Performing CUDA computation");
+  wbTime_stop(Compute, "Elapsed kernel time (Version 1):");
+  // ----------------------------------------------------------
 
+  // Launch kernel 2 - Shared
+  // ----------------------------------------------------------
+  wbLog(TRACE, "Launching kernel 2");
+  wbTime_start(Compute, "Elapsed kernel time (Version 2):");
+  histogram_private_kernel << < 4096 / BLOCK_SIZE, BLOCK_SIZE, NUM_BINS * sizeof(unsigned int) >> >(deviceInput, deviceBins2, inputLength, NUM_BINS);
+  cudaDeviceSynchronize();
+  histogram_cliping << < 4096 / BLOCK_SIZE, BLOCK_SIZE >> > (deviceBins2, NUM_BINS);
+  cudaDeviceSynchronize();
+  wbTime_stop(Compute, "Elapsed kernel time (Version 2):");
+  // ----------------------------------------------------------
+  
   wbTime_start(Copy, "Copying output memory to the CPU");
-  cudaMemcpy(hostBins, deviceBins, NUM_BINS * sizeof(unsigned int), cudaMemcpyDeviceToHost);
+  cudaMemcpy(hostBins1, deviceBins1, NUM_BINS * sizeof(unsigned int), cudaMemcpyDeviceToHost);
+  cudaMemcpy(hostBins2, deviceBins2, NUM_BINS * sizeof(unsigned int), cudaMemcpyDeviceToHost);
   CUDA_CHECK(cudaDeviceSynchronize());
   wbTime_stop(Copy, "Copying output memory to the CPU");
 
   wbTime_start(GPU, "Freeing GPU Memory");
   cudaFree(deviceInput);
-  cudaFree(deviceBins);
+  cudaFree(deviceBins1);
+  cudaFree(deviceBins2);
   wbTime_stop(GPU, "Freeing GPU Memory");
 
   // Verify correctness
   // -----------------------------------------------------
-  wbSolution(args, hostBins, NUM_BINS);
+  wbSolution(args, hostBins1, NUM_BINS);
+  wbSolution(args, hostBins2, NUM_BINS);
 
-  free(hostBins);
+  free(hostBins1);
+  free(hostBins2);
   free(hostInput);
   return 0;
 }
