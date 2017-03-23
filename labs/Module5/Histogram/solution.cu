@@ -1,7 +1,7 @@
 #include <wb.h>
 
 #define NUM_BINS 4096
-#define BLOCK_SIZE 32
+#define BLOCK_SIZE 1024
 
 #define CUDA_CHECK(ans)                                                   \
   { gpuAssert((ans), __FILE__, __LINE__); }
@@ -24,15 +24,15 @@ __global__ void histogram_kernel(unsigned int *input, unsigned int *bins,
 {
     unsigned int i = threadIdx.x + blockDim.x * blockIdx.x;
     unsigned int stride = blockDim.x * gridDim.x;
+    unsigned int idx;
 
-    while (i < num_elements)
+    for (idx = i; idx < num_elements; idx += stride)
     {
-        unsigned int value = input[i];
+        unsigned int value = input[idx];
         if (value < num_bins)
         {
             atomicAdd(&bins[value], 1);
         }
-        i += stride;
     }
 }
 
@@ -46,30 +46,30 @@ __global__ void histogram_private_kernel(unsigned int *input, unsigned int *bins
 
     unsigned int i = threadIdx.x + blockDim.x * blockIdx.x;
     unsigned int stride = blockDim.x * gridDim.x;
+    unsigned int idx;
 
     // Phase 1 - Clear Bins
-    if (i < num_bins)
+    for (idx = threadIdx.x; idx < num_bins; idx += blockDim.x)
     {
         sBins[i] = 0;
     }
     __syncthreads();
 
     // Phase 2 - Add to Shared Bins
-    while (i < num_elements)
+    for (idx = i; idx < num_elements; idx += stride)
     {
-        unsigned int value = input[i];
+        unsigned int value = input[idx];
         if (value < num_bins)
         {
             atomicAdd(&sBins[value], 1);
         }
-        i += stride;
     }
     __syncthreads();
 
     // Phase 3 - Add Bins to Global Memory
-    if (i < num_bins)
+    for (idx = threadIdx.x; idx < num_bins; idx += blockDim.x)
     {
-        atomicAdd(&bins[i], sBins[i]);
+        atomicAdd(&bins[idx], sBins[idx]);
     }
 }
 
@@ -130,8 +130,8 @@ int main(int argc, char *argv[]) {
   // ----------------------------------------------------------
   wbLog(TRACE, "Launching kernel");
   wbTime_start(Compute, "Performing CUDA computation");
-  //histogram_kernel<<< 4096 / BLOCK_SIZE, BLOCK_SIZE >>>(deviceInput, deviceBins, inputLength, NUM_BINS);
-  histogram_private_kernel << < 4096 / BLOCK_SIZE, BLOCK_SIZE, NUM_BINS * sizeof(unsigned int) >> >(deviceInput, deviceBins, inputLength, NUM_BINS);
+  histogram_kernel<<< 4096 / BLOCK_SIZE, BLOCK_SIZE >>>(deviceInput, deviceBins, inputLength, NUM_BINS);
+  //histogram_private_kernel << < 4096 / BLOCK_SIZE, BLOCK_SIZE, NUM_BINS * sizeof(unsigned int) >> >(deviceInput, deviceBins, inputLength, NUM_BINS);
   cudaDeviceSynchronize();
   histogram_cliping << < 4096 / BLOCK_SIZE, BLOCK_SIZE >> > (deviceBins, NUM_BINS);
   cudaDeviceSynchronize();
