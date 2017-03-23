@@ -89,6 +89,8 @@ __global__ void histogram_cliping(unsigned int * bins, unsigned int num_bins)
 }
 
 int main(int argc, char *argv[]) {
+  cudaEvent_t kstart1, kstop1, kstart2, kstop2;
+  
   wbArg_t args;
   int inputLength;
   unsigned int *hostInput;
@@ -97,6 +99,11 @@ int main(int argc, char *argv[]) {
   unsigned int *deviceInput;
   unsigned int *deviceBins1;
   unsigned int *deviceBins2;
+
+  cudaEventCreate(&kstart1);
+  cudaEventCreate(&kstop1);
+  cudaEventCreate(&kstart2);
+  cudaEventCreate(&kstop2);
 
   args = wbArg_read(argc, argv);
 
@@ -138,23 +145,35 @@ int main(int argc, char *argv[]) {
   // Launch kernel 1 - Global
   // ----------------------------------------------------------
   wbLog(TRACE, "Launching kernel 1");
-  wbTime_start(Compute, "Elapsed kernel time (Version 1):");
+  wbTime_start(Compute, "Kernel 1");
+  cudaEventRecord(kstart1);
   histogram_kernel<<< 4096 / BLOCK_SIZE, BLOCK_SIZE >>>(deviceInput, deviceBins1, inputLength, NUM_BINS);
     cudaDeviceSynchronize();
   histogram_cliping << < 4096 / BLOCK_SIZE, BLOCK_SIZE >> > (deviceBins1, NUM_BINS);
   cudaDeviceSynchronize();
-  wbTime_stop(Compute, "Elapsed kernel time (Version 1):");
+  cudaEventRecord(kstop1);
+  wbTime_stop(Compute, "Kernel 1");
+  
+  float  milliseconds1 = 0;
+  cudaEventElapsedTime(&milliseconds1, kstart1, kstop1);
+  wbLog(TRACE, "Elapsed kernel time (Version 1): " , milliseconds1);
   // ----------------------------------------------------------
 
   // Launch kernel 2 - Shared
   // ----------------------------------------------------------
   wbLog(TRACE, "Launching kernel 2");
-  wbTime_start(Compute, "Elapsed kernel time (Version 2):");
+  wbTime_start(Compute, "Kernel 2");
+  cudaEventRecord(kstart2);
   histogram_private_kernel << < 4096 / BLOCK_SIZE, BLOCK_SIZE, NUM_BINS * sizeof(unsigned int) >> >(deviceInput, deviceBins2, inputLength, NUM_BINS);
   cudaDeviceSynchronize();
   histogram_cliping << < 4096 / BLOCK_SIZE, BLOCK_SIZE >> > (deviceBins2, NUM_BINS);
   cudaDeviceSynchronize();
-  wbTime_stop(Compute, "Elapsed kernel time (Version 2):");
+  cudaEventRecord(kstop2);
+  wbTime_stop(Compute, "Kernel 2");
+
+  float  milliseconds2 = 0;
+  cudaEventElapsedTime(&milliseconds2, kstart2, kstop2);
+  wbLog(TRACE, "Elapsed kernel time (Version 2): ", milliseconds2);
   // ----------------------------------------------------------
   
   wbTime_start(Copy, "Copying output memory to the CPU");
