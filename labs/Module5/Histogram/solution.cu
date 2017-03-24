@@ -154,7 +154,7 @@ int main(int argc, char *argv[]) {
   cudaDeviceSynchronize();
   wbTime_stop(Compute, "Kernel 1");
   
-  cudaEventSynchronize(stop);
+  cudaEventSynchronize(kstop1);
   float  milliseconds1 = 0;
   cudaEventElapsedTime(&milliseconds1, kstart1, kstop1);
   wbLog(TRACE, "Elapsed kernel time (Version 1): " , milliseconds1);
@@ -172,7 +172,7 @@ int main(int argc, char *argv[]) {
   cudaDeviceSynchronize();
   wbTime_stop(Compute, "Kernel 2");
 
-  cudaEventSynchronize(stop);
+  cudaEventSynchronize(kstop2);
   float  milliseconds2 = 0;
   cudaEventElapsedTime(&milliseconds2, kstart2, kstop2);
   wbLog(TRACE, "Elapsed kernel time (Version 2): ", milliseconds2);
