@@ -1,13 +1,8 @@
 [
 {
   "directory": "/home/u32/gmrosier/ece569/build_dir",
-  "command": "/opt/rh/devtoolset-1.1/root/usr/bin/c++     -Wall -Wno-unused-function -Wno-unused-parameter -Wextra -std=c++11 -Wno-dollar-in-identifier-extension -O3 -DNDEBUG -I/home/u32/gmrosier/ece569/labs/libwb -I/uaopt/cuda/7.0.28/include    -o CMakeFiles/BasicMatrixMultiplication_DatasetGenerator.dir/Module4/BasicMatrixMultiplication/dataset_generator.cpp.o -c /home/u32/gmrosier/ece569/labs/Module4/BasicMatrixMultiplication/dataset_generator.cpp",
-  "file": "/home/u32/gmrosier/ece569/labs/Module4/BasicMatrixMultiplication/dataset_generator.cpp"
-},
-{
-  "directory": "/home/u32/gmrosier/ece569/build_dir",
-  "command": "/opt/rh/devtoolset-1.1/root/usr/bin/c++     -Wall -Wno-unused-function -Wno-unused-parameter -Wextra -std=c++11 -Wno-dollar-in-identifier-extension -O3 -DNDEBUG -I/home/u32/gmrosier/ece569/labs/libwb -I/uaopt/cuda/7.0.28/include    -o CMakeFiles/TiledMatrixMultiplication_DatasetGenerator.dir/Module4/TiledMatrixMultiplication/dataset_generator.cpp.o -c /home/u32/gmrosier/ece569/labs/Module4/TiledMatrixMultiplication/dataset_generator.cpp",
-  "file": "/home/u32/gmrosier/ece569/labs/Module4/TiledMatrixMultiplication/dataset_generator.cpp"
+  "command": "/opt/rh/devtoolset-1.1/root/usr/bin/c++     -Wall -Wno-unused-function -Wno-unused-parameter -Wextra -std=c++11 -Wno-dollar-in-identifier-extension -O3 -DNDEBUG -I/home/u32/gmrosier/ece569/labs/libwb -I/uaopt/cuda/7.0.28/include    -o CMakeFiles/Histogram_DatasetGenerator.dir/Module5/Histogram/dataset_generator.cpp.o -c /home/u32/gmrosier/ece569/labs/Module5/Histogram/dataset_generator.cpp",
+  "file": "/home/u32/gmrosier/ece569/labs/Module5/Histogram/dataset_generator.cpp"
 },
 {
   "directory": "/home/u32/gmrosier/ece569/build_dir",
