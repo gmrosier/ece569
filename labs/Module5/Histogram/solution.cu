@@ -148,12 +148,13 @@ int main(int argc, char *argv[]) {
   wbTime_start(Compute, "Kernel 1");
   cudaEventRecord(kstart1);
   histogram_kernel<<< 4096 / BLOCK_SIZE, BLOCK_SIZE >>>(deviceInput, deviceBins1, inputLength, NUM_BINS);
-    cudaDeviceSynchronize();
+  cudaEventRecord(kstop1);
+  cudaDeviceSynchronize();
   histogram_cliping << < 4096 / BLOCK_SIZE, BLOCK_SIZE >> > (deviceBins1, NUM_BINS);
   cudaDeviceSynchronize();
-  cudaEventRecord(kstop1);
   wbTime_stop(Compute, "Kernel 1");
   
+  cudaEventSynchronize(stop);
   float  milliseconds1 = 0;
   cudaEventElapsedTime(&milliseconds1, kstart1, kstop1);
   wbLog(TRACE, "Elapsed kernel time (Version 1): " , milliseconds1);
@@ -165,12 +166,13 @@ int main(int argc, char *argv[]) {
   wbTime_start(Compute, "Kernel 2");
   cudaEventRecord(kstart2);
   histogram_private_kernel << < 4096 / BLOCK_SIZE, BLOCK_SIZE, NUM_BINS * sizeof(unsigned int) >> >(deviceInput, deviceBins2, inputLength, NUM_BINS);
+  cudaEventRecord(kstop2);
   cudaDeviceSynchronize();
   histogram_cliping << < 4096 / BLOCK_SIZE, BLOCK_SIZE >> > (deviceBins2, NUM_BINS);
   cudaDeviceSynchronize();
-  cudaEventRecord(kstop2);
   wbTime_stop(Compute, "Kernel 2");
 
+  cudaEventSynchronize(stop);
   float  milliseconds2 = 0;
   cudaEventElapsedTime(&milliseconds2, kstart2, kstop2);
   wbLog(TRACE, "Elapsed kernel time (Version 2): ", milliseconds2);
