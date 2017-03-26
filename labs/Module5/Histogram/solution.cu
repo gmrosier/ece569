@@ -26,13 +26,21 @@ __global__ void histogram_kernel(unsigned int *input, unsigned int *bins,
     unsigned int i = threadIdx.x + blockDim.x * blockIdx.x;
     unsigned int stride = blockDim.x * gridDim.x;
     unsigned int idx;
-
-    for (idx = i; idx < num_elements; idx += stride)
+    
+    for (idx = i; idx < num_elements / 2; idx += stride)
     {
         unsigned int value = input[idx];
-        if (value < num_bins)
+        unsigned int vh = (value >> 16) & 0xFFFF;
+        unsigned int vl = value & 0xFFFF;
+
+        if (vh < num_bins)
         {
-            atomicAdd(&bins[value], 1);
+            atomicAdd(&bins[vh], 1);
+        }
+
+        if (vl < num_bins)
+        {
+            atomicAdd(&bins[vl], 1);
         }
     }
 }
@@ -57,12 +65,20 @@ __global__ void histogram_private_kernel(unsigned int *input, unsigned int *bins
     __syncthreads();
 
     // Phase 2 - Add to Shared Bins
-    for (idx = i; idx < num_elements; idx += stride)
+    for (idx = i; idx < num_elements / 2; idx += stride)
     {
         unsigned int value = input[idx];
-        if (value < num_bins)
+        unsigned int vh = (value >> 16) & 0xFFFF;
+        unsigned int vl = value & 0xFFFF;
+
+        if (vh < num_bins)
         {
-            atomicAdd(&sBins[value], 1);
+            atomicAdd(&sBins[vh], 1);
+        }
+
+        if (vl < num_bins)
+        {
+            atomicAdd(&sBins[vl], 1);
         }
     }
     __syncthreads();
@@ -95,6 +111,7 @@ int main(int argc, char *argv[]) {
   wbArg_t args;
   int inputLength;
   unsigned int *hostInput;
+  unsigned short *hostInputHalf;
   unsigned int *hostBins1;
   unsigned int *hostBins2;
   unsigned int *deviceInput;
@@ -111,6 +128,7 @@ int main(int argc, char *argv[]) {
   wbTime_start(Generic, "Importing data and creating memory on host");
   hostInput = (unsigned int *)wbImport(wbArg_getInputFile(args, 0),
                                        &inputLength, "Integer");
+  hostInputHalf = (unsigned short *)malloc(inputLength * sizeof(unsigned short));
   hostBins1 = (unsigned int *)malloc(NUM_BINS * sizeof(unsigned int));
   hostBins2 = (unsigned int *)malloc(NUM_BINS * sizeof(unsigned int));
   wbTime_stop(Generic, "Importing data and creating memory on host");
@@ -118,8 +136,18 @@ int main(int argc, char *argv[]) {
   wbLog(TRACE, "The input length is ", inputLength);
   wbLog(TRACE, "The number of bins is ", NUM_BINS);
 
+  //------------------------------------------------------------------
+  // Convert Input
+  //------------------------------------------------------------------
+  for (int i = 0; i < inputLength; i++)
+  {
+      hostInputHalf[i] = static_cast<unsigned short>(hostInput[i]);
+  }
+
+  //------------------------------------------------------------------
+
   wbTime_start(GPU, "Allocating GPU memory.");
-  if (cudaMalloc(&deviceInput, inputLength * sizeof(unsigned int)) != cudaSuccess)
+  if (cudaMalloc(&deviceInput, inputLength * sizeof(unsigned short)) != cudaSuccess)
   {
       wbLog(TRACE, "Unable to Allocation Memory on GPU");
   }
@@ -137,7 +165,7 @@ int main(int argc, char *argv[]) {
   wbTime_stop(GPU, "Allocating GPU memory.");
 
   wbTime_start(GPU, "Copying input memory to the GPU.");
-  cudaMemcpy(deviceInput, hostInput, inputLength * sizeof(unsigned int), cudaMemcpyHostToDevice);
+  cudaMemcpy(deviceInput, hostInputHalf, inputLength * sizeof(unsigned short), cudaMemcpyHostToDevice);
   cudaMemset(deviceBins1, 0, NUM_BINS * sizeof(unsigned int));
   cudaMemset(deviceBins2, 0, NUM_BINS * sizeof(unsigned int));
   CUDA_CHECK(cudaDeviceSynchronize());
