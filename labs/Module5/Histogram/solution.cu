@@ -35,14 +35,7 @@ __global__ void histogram_kernel(unsigned int *input, unsigned int *bins,
             unsigned int bIdx = value / 4;
             unsigned int sIdx = (value % 4) * 8;
             unsigned int nVal = 1 << sIdx;
-            unsigned int old = bins[bIdx];
-            unsigned int assumed;
-            do
-            {
-                assumed = old;
-                unsigned int val = __vaddss4(assumed, nVal);
-                old = atomicCAS(&bins[bIdx], assumed, val);
-            } while (old != assumed);
+            atomicAdd(&bins[bIdx], nVal);
         }
     }
 }
@@ -75,14 +68,7 @@ __global__ void histogram_private_kernel(unsigned int *input, unsigned int *bins
             unsigned int bIdx = value / 4;
             unsigned int sIdx = (value % 4) * 8;
             unsigned int nVal = 1 << sIdx;
-            unsigned int old = sBins[bIdx];
-            unsigned int assumed;
-            do
-            {
-                assumed = old;
-                unsigned int val = __vaddss4(assumed, nVal);
-                old = atomicCAS(&sBins[bIdx], assumed, val);
-            } while (old != assumed);
+            atomicAdd(&sBins[bIdx], nVal);
         }
     }
     __syncthreads();
@@ -90,14 +76,7 @@ __global__ void histogram_private_kernel(unsigned int *input, unsigned int *bins
     // Phase 3 - Add Bins to Global Memory
     for (idx = threadIdx.x; idx < num_bins/4; idx += blockDim.x)
     {
-        unsigned int old = bins[idx];
-        unsigned int assumed;
-        do
-        {
-            assumed = old;
-            unsigned int val = __vaddss4(assumed, sBins[idx]);
-            old = atomicCAS(&bins[idx], assumed, val);
-        } while (old != assumed);
+        atomicAdd(&bins[idx], sBins[idx]);
     }
 }
 
@@ -109,9 +88,35 @@ __global__ void histogram_cliping(unsigned int * bins, unsigned int num_bins)
     if (i < num_bins)
     {
         unsigned int value = bins[i];
-        if (value > 127)
+        unsigned int v0 = value & 0xFF;
+        unsigned int v1 = (value >> 8) & 0xFF;
+        unsigned int v2 = (value >> 16) & 0xFF;
+        unsigned int v3 = (value >> 24) & 0xFF;
+        unsigned int out = value;
+
+        if (v0 > 127)
         {
-            bins[i] = 127;
+            out = (out & 0xFFFFFF00) + 127;
+        }
+
+        if (v1 > 127)
+        {
+            out = (out & 0xFFFF00FF) + (127 << 8);
+        }
+
+        if (v2 > 127)
+        {
+            out = (out & 0xFF00FFFF) + (127 << 16);
+        }
+
+        if (v3 > 127)
+        {
+            out = (out & 0x00FFFFFF) + (127 << 24);
+        }
+
+        if (out != value)
+        {
+            bins[i] = out;
         }
     }
 }
@@ -185,8 +190,8 @@ int main(int argc, char *argv[]) {
   wbTime_start(Compute, "Kernel 1");
   cudaEventRecord(kstart1);
   histogram_kernel<<< gridSize, BLOCK_SIZE >>>(deviceInput, deviceBins1, inputLength, NUM_BINS);
-  //cudaDeviceSynchronize();
-  //histogram_cliping << < gridSize, BLOCK_SIZE >> > (deviceBins1, NUM_BINS);
+  cudaDeviceSynchronize();
+  histogram_cliping << < gridSize, BLOCK_SIZE >> > (deviceBins1, NUM_BINS);
   cudaEventRecord(kstop1);
   cudaDeviceSynchronize();
   wbTime_stop(Compute, "Kernel 1");
@@ -203,8 +208,8 @@ int main(int argc, char *argv[]) {
   wbTime_start(Compute, "Kernel 2");
   cudaEventRecord(kstart2);
   histogram_private_kernel << < gridSize, BLOCK_SIZE, NUM_BINS * sizeof(unsigned char) >> >(deviceInput, deviceBins2, inputLength, NUM_BINS);
-  //cudaDeviceSynchronize();
-  //histogram_cliping << < gridSize, BLOCK_SIZE >> > (deviceBins2, NUM_BINS);
+  cudaDeviceSynchronize();
+  histogram_cliping << < gridSize, BLOCK_SIZE >> > (deviceBins2, NUM_BINS);
   cudaEventRecord(kstop2);
   CUDA_CHECK(cudaDeviceSynchronize());
   wbTime_stop(Compute, "Kernel 2");
