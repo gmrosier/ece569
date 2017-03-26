@@ -26,21 +26,23 @@ __global__ void histogram_kernel(unsigned int *input, unsigned int *bins,
     unsigned int i = threadIdx.x + blockDim.x * blockIdx.x;
     unsigned int stride = blockDim.x * gridDim.x;
     unsigned int idx;
-    
-    for (idx = i; idx < num_elements / 2; idx += stride)
+
+    for (idx = i; idx < num_elements; idx += stride)
     {
         unsigned int value = input[idx];
-        unsigned int vh = (value >> 16) & 0xFFFF;
-        unsigned int vl = value & 0xFFFF;
-
-        if (vh < num_bins)
+        if (value < num_bins)
         {
-            atomicAdd(&bins[vh], 1);
-        }
-
-        if (vl < num_bins)
-        {
-            atomicAdd(&bins[vl], 1);
+            unsigned int bIdx = value / 4;
+            unsigned int sIdx = (value % 4) * 8;
+            unsigned int nVal = 1 << sIdx;
+            unsigned int old = bins[bIdx];
+            unsigned int assumed;
+            do
+            {
+                assumed = old;
+                unsigned int val = __vaddss4(assumed, nVal);
+                old = atomicCAS(&bins[bIdx], assumed, val);
+            } while (old != assumed);
         }
     }
 }
@@ -58,35 +60,44 @@ __global__ void histogram_private_kernel(unsigned int *input, unsigned int *bins
     unsigned int idx;
 
     // Phase 1 - Clear Bins
-    for (idx = threadIdx.x; idx < num_bins; idx += blockDim.x)
+    for (idx = threadIdx.x; idx < num_bins/4; idx += blockDim.x)
     {
         sBins[idx] = 0;
     }
     __syncthreads();
 
     // Phase 2 - Add to Shared Bins
-    for (idx = i; idx < num_elements / 2; idx += stride)
+    for (idx = i; idx < num_elements; idx += stride)
     {
         unsigned int value = input[idx];
-        unsigned int vh = (value >> 16) & 0xFFFF;
-        unsigned int vl = value & 0xFFFF;
-
-        if (vh < num_bins)
+        if (value < num_bins)
         {
-            atomicAdd(&sBins[vh], 1);
-        }
-
-        if (vl < num_bins)
-        {
-            atomicAdd(&sBins[vl], 1);
+            unsigned int bIdx = value / 4;
+            unsigned int sIdx = (value % 4) * 8;
+            unsigned int nVal = 1 << sIdx;
+            unsigned int old = sBins[bIdx];
+            unsigned int assumed;
+            do
+            {
+                assumed = old;
+                unsigned int val = __vaddss4(assumed, nVal);
+                old = atomicCAS(&sBins[bIdx], assumed, val);
+            } while (old != assumed);
         }
     }
     __syncthreads();
 
     // Phase 3 - Add Bins to Global Memory
-    for (idx = threadIdx.x; idx < num_bins; idx += blockDim.x)
+    for (idx = threadIdx.x; idx < num_bins/4; idx += blockDim.x)
     {
-        atomicAdd(&bins[idx], sBins[idx]);
+        unsigned int old = bins[idx];
+        unsigned int assumed;
+        do
+        {
+            assumed = old;
+            unsigned int val = __vaddss4(assumed, sBins[idx]);
+            old = atomicCAS(&bins[idx], assumed, val);
+        } while (old != assumed);
     }
 }
 
@@ -111,7 +122,8 @@ int main(int argc, char *argv[]) {
   wbArg_t args;
   int inputLength;
   unsigned int *hostInput;
-  unsigned short *hostInputHalf;
+  unsigned char *hostBins1Quarter;
+  unsigned char *hostBins2Quarter;
   unsigned int *hostBins1;
   unsigned int *hostBins2;
   unsigned int *deviceInput;
@@ -128,7 +140,8 @@ int main(int argc, char *argv[]) {
   wbTime_start(Generic, "Importing data and creating memory on host");
   hostInput = (unsigned int *)wbImport(wbArg_getInputFile(args, 0),
                                        &inputLength, "Integer");
-  hostInputHalf = (unsigned short *)malloc(inputLength * sizeof(unsigned short));
+  hostBins1Quarter = (unsigned char *)malloc(NUM_BINS * sizeof(unsigned char));
+  hostBins2Quarter = (unsigned char *)malloc(NUM_BINS * sizeof(unsigned char));
   hostBins1 = (unsigned int *)malloc(NUM_BINS * sizeof(unsigned int));
   hostBins2 = (unsigned int *)malloc(NUM_BINS * sizeof(unsigned int));
   wbTime_stop(Generic, "Importing data and creating memory on host");
@@ -136,28 +149,18 @@ int main(int argc, char *argv[]) {
   wbLog(TRACE, "The input length is ", inputLength);
   wbLog(TRACE, "The number of bins is ", NUM_BINS);
 
-  //------------------------------------------------------------------
-  // Convert Input
-  //------------------------------------------------------------------
-  for (int i = 0; i < inputLength; i++)
-  {
-      hostInputHalf[i] = static_cast<unsigned short>(hostInput[i]);
-  }
-
-  //------------------------------------------------------------------
-
   wbTime_start(GPU, "Allocating GPU memory.");
-  if (cudaMalloc(&deviceInput, inputLength * sizeof(unsigned short)) != cudaSuccess)
+  if (cudaMalloc(&deviceInput, inputLength * sizeof(unsigned int)) != cudaSuccess)
   {
       wbLog(TRACE, "Unable to Allocation Memory on GPU");
   }
 
-  if (cudaMalloc(&deviceBins1, NUM_BINS * sizeof(unsigned int)) != cudaSuccess)
+  if (cudaMalloc(&deviceBins1, NUM_BINS * sizeof(unsigned char)) != cudaSuccess)
   {
       wbLog(TRACE, "Unable to Allocation Memory on GPU");
   }
 
-  if (cudaMalloc(&deviceBins2, NUM_BINS * sizeof(unsigned int)) != cudaSuccess)
+  if (cudaMalloc(&deviceBins2, NUM_BINS * sizeof(unsigned char)) != cudaSuccess)
   {
       wbLog(TRACE, "Unable to Allocation Memory on GPU");
   }
@@ -165,9 +168,9 @@ int main(int argc, char *argv[]) {
   wbTime_stop(GPU, "Allocating GPU memory.");
 
   wbTime_start(GPU, "Copying input memory to the GPU.");
-  cudaMemcpy(deviceInput, hostInputHalf, inputLength * sizeof(unsigned short), cudaMemcpyHostToDevice);
-  cudaMemset(deviceBins1, 0, NUM_BINS * sizeof(unsigned int));
-  cudaMemset(deviceBins2, 0, NUM_BINS * sizeof(unsigned int));
+  cudaMemcpy(deviceInput, hostInput, inputLength * sizeof(unsigned int), cudaMemcpyHostToDevice);
+  cudaMemset(deviceBins1, 0, NUM_BINS * sizeof(unsigned char));
+  cudaMemset(deviceBins2, 0, NUM_BINS * sizeof(unsigned char));
   CUDA_CHECK(cudaDeviceSynchronize());
   wbTime_stop(GPU, "Copying input memory to the GPU.");
 
@@ -182,8 +185,8 @@ int main(int argc, char *argv[]) {
   wbTime_start(Compute, "Kernel 1");
   cudaEventRecord(kstart1);
   histogram_kernel<<< gridSize, BLOCK_SIZE >>>(deviceInput, deviceBins1, inputLength, NUM_BINS);
-  cudaDeviceSynchronize();
-  histogram_cliping << < gridSize, BLOCK_SIZE >> > (deviceBins1, NUM_BINS);
+  //cudaDeviceSynchronize();
+  //histogram_cliping << < gridSize, BLOCK_SIZE >> > (deviceBins1, NUM_BINS);
   cudaEventRecord(kstop1);
   cudaDeviceSynchronize();
   wbTime_stop(Compute, "Kernel 1");
@@ -199,9 +202,9 @@ int main(int argc, char *argv[]) {
   wbLog(TRACE, "Launching kernel 2");
   wbTime_start(Compute, "Kernel 2");
   cudaEventRecord(kstart2);
-  histogram_private_kernel << < gridSize, BLOCK_SIZE, NUM_BINS * sizeof(unsigned int) >> >(deviceInput, deviceBins2, inputLength, NUM_BINS);
-  cudaDeviceSynchronize();
-  histogram_cliping << < gridSize, BLOCK_SIZE >> > (deviceBins2, NUM_BINS);
+  histogram_private_kernel << < gridSize, BLOCK_SIZE, NUM_BINS * sizeof(unsigned char) >> >(deviceInput, deviceBins2, inputLength, NUM_BINS);
+  //cudaDeviceSynchronize();
+  //histogram_cliping << < gridSize, BLOCK_SIZE >> > (deviceBins2, NUM_BINS);
   cudaEventRecord(kstop2);
   CUDA_CHECK(cudaDeviceSynchronize());
   wbTime_stop(Compute, "Kernel 2");
@@ -213,8 +216,8 @@ int main(int argc, char *argv[]) {
   // ----------------------------------------------------------
   
   wbTime_start(Copy, "Copying output memory to the CPU");
-  cudaMemcpy(hostBins1, deviceBins1, NUM_BINS * sizeof(unsigned int), cudaMemcpyDeviceToHost);
-  cudaMemcpy(hostBins2, deviceBins2, NUM_BINS * sizeof(unsigned int), cudaMemcpyDeviceToHost);
+  cudaMemcpy(hostBins1Quarter, deviceBins1, NUM_BINS * sizeof(unsigned char), cudaMemcpyDeviceToHost);
+  cudaMemcpy(hostBins2Quarter, deviceBins2, NUM_BINS * sizeof(unsigned char), cudaMemcpyDeviceToHost);
   CUDA_CHECK(cudaDeviceSynchronize());
   wbTime_stop(Copy, "Copying output memory to the CPU");
 
@@ -224,6 +227,15 @@ int main(int argc, char *argv[]) {
   cudaFree(deviceBins2);
   wbTime_stop(GPU, "Freeing GPU Memory");
 
+
+  // Convert Bins
+  // -----------------------------------------------------
+  for (int i = 0; i < NUM_BINS; i++)
+  {
+      hostBins1[i] = hostBins1Quarter[i];
+      hostBins2[i] = hostBins2Quarter[i];
+  }
+
   // Verify correctness
   // -----------------------------------------------------
   wbSolution(args, hostBins1, NUM_BINS);
@@ -231,6 +243,8 @@ int main(int argc, char *argv[]) {
 
   free(hostBins1);
   free(hostBins2);
+  free(hostBins1Quarter);
+  free(hostBins2Quarter);
   free(hostInput);
   return 0;
 }
