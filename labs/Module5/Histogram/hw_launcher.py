@@ -39,6 +39,7 @@ def checkSolution(output):
 
 parser = argparse.ArgumentParser(description='HW Launcher')
 parser.add_argument("setTimes",type=int, help="Set number and number of times. This can include any number of arguments but must be a multiple of 2 total." + "For example, to launch set #1 10 times and set #2 6 times: hw_launcher 1 10 2 6", nargs="+")
+parser.add_argument("--debug", action="store_true", help="Disable Numbers and just output execution")
 args = parser.parse_args()
 set = 0
 times = 0
@@ -56,15 +57,21 @@ else:
         verTwoSum = 0
         validSum = 0
         for j in range(times):
-            result = subprocess.run(['Debug/Histogram.exe', '-e', 'output.raw', '-i', 'input.raw', '-t', 'integral_vector'], stdout=subprocess.PIPE)
-            output = result.stdout.decode('utf-8')
-            if (checkSolution(output)):
-                validSum += 1
-                verOneSum += printValueInMsg(output,'Elapsed kernel time (Version 1):')
-                verTwoSum += printValueInMsg(output,'Elapsed kernel time (Version 2):')
+            if args.debug:
+                subprocess.run(['Debug/Histogram.exe', '-e', 'output.raw', '-i', 'input.raw', '-t', 'integral_vector'])
+            else:
+                result = subprocess.run(['Debug/Histogram.exe', '-e', 'output.raw', '-i', 'input.raw', '-t', 'integral_vector'], stdout=subprocess.PIPE)
+                output = result.stdout.decode('utf-8')
+                if (checkSolution(output)):
+                    validSum += 1
+                    gridSize = printValueInMsg(output,'Grid Size:')
+                    verOneSum += printValueInMsg(output,'Elapsed kernel time (Version 1):')
+                    verTwoSum += printValueInMsg(output,'Elapsed kernel time (Version 2):')
 
-        print("-----Set #" + str(set) + " results: ------")
-        print("Valid Solutions:",   str(validSum))
-        print("Version 1 Average:", str(verOneSum / times))
-        print("Version 2 Average:", str(verTwoSum / times))
-        print("---------------------------")
+        if not args.debug:
+            print("-----Set #" + str(set) + " results: ------")
+            print("Grid Size:", str(gridSize))
+            print("Valid Solutions:",   str(validSum))
+            print("Version 1 Average:", str(verOneSum / times))
+            print("Version 2 Average:", str(verTwoSum / times))
+            print("---------------------------")

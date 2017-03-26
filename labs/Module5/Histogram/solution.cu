@@ -1,4 +1,5 @@
 #include <wb.h>
+#include <math.h>
 
 #define NUM_BINS 4096
 #define BLOCK_SIZE 1024
@@ -51,7 +52,7 @@ __global__ void histogram_private_kernel(unsigned int *input, unsigned int *bins
     // Phase 1 - Clear Bins
     for (idx = threadIdx.x; idx < num_bins; idx += blockDim.x)
     {
-        sBins[i] = 0;
+        sBins[idx] = 0;
     }
     __syncthreads();
 
@@ -142,14 +143,19 @@ int main(int argc, char *argv[]) {
   CUDA_CHECK(cudaDeviceSynchronize());
   wbTime_stop(GPU, "Copying input memory to the GPU.");
 
+
+  //unsigned int gridSize = static_cast<unsigned int>(ceil(inputLength / (1.0 * BLOCK_SIZE)));
+  unsigned int gridSize = NUM_BINS / BLOCK_SIZE;
+  wbLog(TRACE, "Grid Size: ", gridSize);
+
   // Launch kernel 1 - Global
   // ----------------------------------------------------------
   wbLog(TRACE, "Launching kernel 1");
   wbTime_start(Compute, "Kernel 1");
   cudaEventRecord(kstart1);
-  histogram_kernel<<< 4096 / BLOCK_SIZE, BLOCK_SIZE >>>(deviceInput, deviceBins1, inputLength, NUM_BINS);
+  histogram_kernel<<< gridSize, BLOCK_SIZE >>>(deviceInput, deviceBins1, inputLength, NUM_BINS);
   cudaDeviceSynchronize();
-  histogram_cliping << < 4096 / BLOCK_SIZE, BLOCK_SIZE >> > (deviceBins1, NUM_BINS);
+  histogram_cliping << < gridSize, BLOCK_SIZE >> > (deviceBins1, NUM_BINS);
   cudaEventRecord(kstop1);
   cudaDeviceSynchronize();
   wbTime_stop(Compute, "Kernel 1");
@@ -165,11 +171,11 @@ int main(int argc, char *argv[]) {
   wbLog(TRACE, "Launching kernel 2");
   wbTime_start(Compute, "Kernel 2");
   cudaEventRecord(kstart2);
-  histogram_private_kernel << < 4096 / BLOCK_SIZE, BLOCK_SIZE, NUM_BINS * sizeof(unsigned int) >> >(deviceInput, deviceBins2, inputLength, NUM_BINS);
+  histogram_private_kernel << < gridSize, BLOCK_SIZE, NUM_BINS * sizeof(unsigned int) >> >(deviceInput, deviceBins2, inputLength, NUM_BINS);
   cudaDeviceSynchronize();
-  histogram_cliping << < 4096 / BLOCK_SIZE, BLOCK_SIZE >> > (deviceBins2, NUM_BINS);
+  histogram_cliping << < gridSize, BLOCK_SIZE >> > (deviceBins2, NUM_BINS);
   cudaEventRecord(kstop2);
-  cudaDeviceSynchronize();
+  CUDA_CHECK(cudaDeviceSynchronize());
   wbTime_stop(Compute, "Kernel 2");
 
   cudaEventSynchronize(kstop2);
