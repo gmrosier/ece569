@@ -1,7 +1,7 @@
 #include <wb.h>
 
 #define NUM_BINS 4096
-#define BLOCK_SIZE 1024
+#define MAX_CNT  127
 
 #define CUDA_CHECK(ans)                                                   \
   { gpuAssert((ans), __FILE__, __LINE__); }
@@ -15,188 +15,191 @@ inline void gpuAssert(cudaError_t code, const char *file, int line,
   }
 }
 
-/*  
-   version 1: global memory only coalesced memory access 
-              with interleaved partitioning (striding)
-*/ 
-__global__ void histogram_kernel(unsigned int *input, unsigned int *bins,
-	unsigned int num_elements, unsigned int num_bins)
-{
-    unsigned int i = threadIdx.x + blockDim.x * blockIdx.x;
-    unsigned int stride = blockDim.x * gridDim.x;
-    unsigned int idx;
+__global__ void histogram_global_kernel(unsigned int *input, unsigned int *bins,
+                                 unsigned int num_elements,
+                                 unsigned int num_bins) {
 
-    for (idx = i; idx < num_elements; idx += stride)
-    {
-        unsigned int value = input[idx];
-        if (value < num_bins)
-        {
-            atomicAdd(&bins[value], 1);
-        }
-    }
+  unsigned int i = blockIdx.x*blockDim.x + threadIdx.x;
+  int stride = blockDim.x*gridDim.x;
+
+  // in case there weren't enough total threads for all elements, must stride across input data each thread doing it's share of the work
+  while (i < num_elements) {
+    int val = input[i];
+    atomicAdd(&bins[val], 1);  // update global full histogram held in global memory, by incrementing the bin corresponding to this value
+    i += stride;               // proceed to next input data element if there are more left to do
+  }
 }
 
-/*  
-   version 2: shared memory with privitization
-*/
-__global__ void histogram_private_kernel(unsigned int *input, unsigned int *bins,
-    unsigned int num_elements, unsigned int num_bins)
-{
-    extern __shared__ unsigned int sBins[];
+__global__ void histogram_shared_kernel(unsigned int *input, unsigned int *bins,
+                                 unsigned int num_elements,
+                                 unsigned int num_bins) {
+  // declare shared memory
+  extern __shared__ unsigned int bin_s[];
 
-    unsigned int i = threadIdx.x + blockDim.x * blockIdx.x;
-    unsigned int stride = blockDim.x * gridDim.x;
-    unsigned int idx;
+  for (int i=threadIdx.x; i < num_bins;i += blockDim.x) {
+    bin_s[i] = 0;
+  }
+  __syncthreads(); // guarantee that all threads in this block have done their share of the initialization
 
-    // Phase 1 - Clear Bins
-    for (idx = threadIdx.x; idx < num_bins; idx += blockDim.x)
-    {
-        sBins[i] = 0;
-    }
-    __syncthreads();
 
-    // Phase 2 - Add to Shared Bins
-    for (idx = i; idx < num_elements; idx += stride)
-    {
-        unsigned int value = input[idx];
-        if (value < num_bins)
-        {
-            atomicAdd(&sBins[value], 1);
-        }
-    }
-    __syncthreads();
+  // update local partial histogram held in my block's shared memory
+  int stride = blockDim.x*gridDim.x; // will stride through full data set, each thread processing inputs on a stride same as other kernel
+  for (unsigned int i= blockIdx.x*blockDim.x + threadIdx.x;i<num_elements;i+=stride) { 
+    atomicAdd(&bin_s[input[i]], 1);  // update local histogram by incrementing the bin corresponding to this value
+  }
+  __syncthreads(); // guarantee all threads in block have completed their histograms
 
-    // Phase 3 - Add Bins to Global Memory
-    for (idx = threadIdx.x; idx < num_bins; idx += blockDim.x)
-    {
-        atomicAdd(&bins[idx], sBins[idx]);
-    }
+  // update global memory, by using atomicAdd to combine local histogram with global histogram
+  for (int i=threadIdx.x;i<num_bins;i+=blockDim.x) {
+    atomicAdd(&bins[i], bin_s[i]);
+  }
 }
 
-/* Cliping Kernel */
-__global__ void histogram_cliping(unsigned int * bins, unsigned int num_bins)
-{
-    unsigned int i = threadIdx.x + blockDim.x * blockIdx.x;
+// kernel that corrects the bins to apply limit 
+__global__ void limit_kernel(
+  unsigned int *bins,
+  unsigned int num_bins) {
 
-    if (i < num_bins)
-    {
-        unsigned int value = bins[i];
-        if (value > 127)
-        {
-            bins[i] = 127;
-        }
-    }
+  int i = blockIdx.x*blockDim.x + threadIdx.x;
+  int stride = blockDim.x*gridDim.x;
+
+  while (i < num_bins) {
+    bins[i] = min(bins[i], MAX_CNT);  // enforce a limit of MAX_CNT
+    i += stride; // in case the thread count was less than the bin count, will need to stride through the bins to complete
+  }
+}
+
+void histogram(unsigned int *input, unsigned int *bins,
+               unsigned int num_elements, unsigned int num_bins, int kernel_version) {
+
+
+ if (kernel_version == 0) {
+  // zero out bins
+  CUDA_CHECK(cudaMemset(bins, 0, num_bins * sizeof(unsigned int)));
+  // Launch histogram kernel on the bins
+  {
+    dim3 blockDim(1024), gridDim((num_elements + blockDim.x - 1) / blockDim.x);
+    histogram_global_kernel<<<gridDim, blockDim>>>(
+        input, bins, num_elements, num_bins);
+    // apply limiting kernel to clip bins to MAX_CNT
+    dim3 lBlockSize(512);
+    dim3 lGridSize((num_bins + lBlockSize.x - 1)/lBlockSize.x);
+    limit_kernel             <<< lGridSize, lBlockSize >>> (bins, num_bins);
+    CUDA_CHECK(cudaGetLastError());
+    CUDA_CHECK(cudaDeviceSynchronize());
+  }
+
+ }
+ else if (kernel_version==1) {
+  // zero out bins
+  CUDA_CHECK(cudaMemset(bins, 0, num_bins * sizeof(unsigned int)));
+  // Launch histogram kernel on the bins
+  {
+    dim3 blockDim(1024), gridDim((num_elements + blockDim.x - 1) / blockDim.x);
+    histogram_shared_kernel<<<gridDim, blockDim,
+                       num_bins * sizeof(unsigned int)>>>(
+        input, bins, num_elements, num_bins);
+    // apply limiting kernel to clip bins to MAX_CNT
+    dim3 lBlockSize(512);
+    dim3 lGridSize((num_bins + lBlockSize.x - 1)/lBlockSize.x);
+    limit_kernel             <<< lGridSize, lBlockSize >>> (bins, num_bins);
+    CUDA_CHECK(cudaGetLastError());
+    CUDA_CHECK(cudaDeviceSynchronize());
+  }
+
+ }
 }
 
 int main(int argc, char *argv[]) {
-  cudaEvent_t kstart1, kstop1, kstart2, kstop2;
-  
   wbArg_t args;
   int inputLength;
+  int version; // kernel version global or shared 
   unsigned int *hostInput;
-  unsigned int *hostBins1;
-  unsigned int *hostBins2;
+  unsigned int *hostBins;
   unsigned int *deviceInput;
-  unsigned int *deviceBins1;
-  unsigned int *deviceBins2;
-
-  cudaEventCreate(&kstart1);
-  cudaEventCreate(&kstop1);
-  cudaEventCreate(&kstart2);
-  cudaEventCreate(&kstop2);
+  unsigned int *deviceBins;
 
   args = wbArg_read(argc, argv);
 
   wbTime_start(Generic, "Importing data and creating memory on host");
   hostInput = (unsigned int *)wbImport(wbArg_getInputFile(args, 0),
                                        &inputLength, "Integer");
-  hostBins1 = (unsigned int *)malloc(NUM_BINS * sizeof(unsigned int));
-  hostBins2 = (unsigned int *)malloc(NUM_BINS * sizeof(unsigned int));
+  hostBins = (unsigned int *)malloc(NUM_BINS * sizeof(unsigned int));
   wbTime_stop(Generic, "Importing data and creating memory on host");
 
   wbLog(TRACE, "The input length is ", inputLength);
   wbLog(TRACE, "The number of bins is ", NUM_BINS);
 
   wbTime_start(GPU, "Allocating GPU memory.");
-  if (cudaMalloc(&deviceInput, inputLength * sizeof(unsigned int)) != cudaSuccess)
-  {
-      wbLog(TRACE, "Unable to Allocation Memory on GPU");
-  }
-
-  if (cudaMalloc(&deviceBins1, NUM_BINS * sizeof(unsigned int)) != cudaSuccess)
-  {
-      wbLog(TRACE, "Unable to Allocation Memory on GPU");
-  }
-
-  if (cudaMalloc(&deviceBins2, NUM_BINS * sizeof(unsigned int)) != cudaSuccess)
-  {
-      wbLog(TRACE, "Unable to Allocation Memory on GPU");
-  }
+  //@@ Allocate GPU memory here
+  CUDA_CHECK(cudaMalloc((void **)&deviceInput,
+                        inputLength * sizeof(unsigned int)));
+  CUDA_CHECK(
+      cudaMalloc((void **)&deviceBins, NUM_BINS * sizeof(unsigned int)));
   CUDA_CHECK(cudaDeviceSynchronize());
   wbTime_stop(GPU, "Allocating GPU memory.");
 
   wbTime_start(GPU, "Copying input memory to the GPU.");
-  cudaMemcpy(deviceInput, hostInput, inputLength * sizeof(unsigned int), cudaMemcpyHostToDevice);
-  cudaMemset(deviceBins1, 0, NUM_BINS * sizeof(unsigned int));
-  cudaMemset(deviceBins2, 0, NUM_BINS * sizeof(unsigned int));
+  //@@ Copy memory to the GPU here
+  CUDA_CHECK(cudaMemcpy(deviceInput, hostInput,
+                        inputLength * sizeof(unsigned int),
+                        cudaMemcpyHostToDevice));
   CUDA_CHECK(cudaDeviceSynchronize());
   wbTime_stop(GPU, "Copying input memory to the GPU.");
 
-  // Launch kernel 1 - Global
+  // Launch kernel
   // ----------------------------------------------------------
-  wbLog(TRACE, "Launching kernel 1");
-  wbTime_start(Compute, "Kernel 1");
-  cudaEventRecord(kstart1);
-  histogram_kernel<<< 4096 / BLOCK_SIZE, BLOCK_SIZE >>>(deviceInput, deviceBins1, inputLength, NUM_BINS);
-  cudaEventRecord(kstop1);
-  cudaDeviceSynchronize();
-  histogram_cliping << < 4096 / BLOCK_SIZE, BLOCK_SIZE >> > (deviceBins1, NUM_BINS);
-  cudaDeviceSynchronize();
-  wbTime_stop(Compute, "Kernel 1");
-  
-  cudaEventSynchronize(kstop1);
-  float  milliseconds1 = 0;
-  cudaEventElapsedTime(&milliseconds1, kstart1, kstop1);
-  wbLog(TRACE, "Elapsed kernel time (Version 1): " , milliseconds1);
-  // ----------------------------------------------------------
+  wbTime_start(Compute, "Performing CUDA computation");
 
-  // Launch kernel 2 - Shared
-  // ----------------------------------------------------------
-  wbLog(TRACE, "Launching kernel 2");
-  wbTime_start(Compute, "Kernel 2");
-  cudaEventRecord(kstart2);
-  histogram_private_kernel << < 4096 / BLOCK_SIZE, BLOCK_SIZE, NUM_BINS * sizeof(unsigned int) >> >(deviceInput, deviceBins2, inputLength, NUM_BINS);
-  cudaEventRecord(kstop2);
-  cudaDeviceSynchronize();
-  histogram_cliping << < 4096 / BLOCK_SIZE, BLOCK_SIZE >> > (deviceBins2, NUM_BINS);
-  cudaDeviceSynchronize();
-  wbTime_stop(Compute, "Kernel 2");
+  version = 0; 
+  histogram(deviceInput, deviceBins, inputLength, NUM_BINS,version);
+  wbTime_stop(Compute, "Performing CUDA computation");
 
-  cudaEventSynchronize(kstop2);
-  float  milliseconds2 = 0;
-  cudaEventElapsedTime(&milliseconds2, kstart2, kstop2);
-  wbLog(TRACE, "Elapsed kernel time (Version 2): ", milliseconds2);
-  // ----------------------------------------------------------
-  
   wbTime_start(Copy, "Copying output memory to the CPU");
-  cudaMemcpy(hostBins1, deviceBins1, NUM_BINS * sizeof(unsigned int), cudaMemcpyDeviceToHost);
-  cudaMemcpy(hostBins2, deviceBins2, NUM_BINS * sizeof(unsigned int), cudaMemcpyDeviceToHost);
+  //@@ Copy the GPU memory back to the CPU here
+  CUDA_CHECK(cudaMemcpy(hostBins, deviceBins,
+                        NUM_BINS * sizeof(unsigned int),
+                        cudaMemcpyDeviceToHost));
   CUDA_CHECK(cudaDeviceSynchronize());
   wbTime_stop(Copy, "Copying output memory to the CPU");
 
-  wbTime_start(GPU, "Freeing GPU Memory");
-  cudaFree(deviceInput);
-  cudaFree(deviceBins1);
-  cudaFree(deviceBins2);
-  wbTime_stop(GPU, "Freeing GPU Memory");
+  // Verify correctness
+  // -----------------------------------------------------
+  wbLog(TRACE, "Checking global memory only kernel");
+  wbSolution(args, hostBins, NUM_BINS);
+
+
+ // Launch kernel
+  // ----------------------------------------------------------
+  wbLog(TRACE, "Launching shared memory kernel");
+  wbTime_start(Compute, "Performing CUDA computation");
+  version = 1;
+
+  histogram(deviceInput, deviceBins, inputLength, NUM_BINS, version);
+  wbTime_stop(Compute, "Performing CUDA computation");
+
+  wbTime_start(Copy, "Copying output memory to the CPU");
+  //@@ Copy the GPU memory back to the CPU here
+  CUDA_CHECK(cudaMemcpy(hostBins, deviceBins,
+                        NUM_BINS * sizeof(unsigned int),
+                        cudaMemcpyDeviceToHost));
+  CUDA_CHECK(cudaDeviceSynchronize());
+  wbTime_stop(Copy, "Copying output memory to the CPU");
 
   // Verify correctness
   // -----------------------------------------------------
-  wbSolution(args, hostBins1, NUM_BINS);
-  wbSolution(args, hostBins2, NUM_BINS);
+  wbLog(TRACE, "Checking shared memory kernel");
+  wbSolution(args, hostBins, NUM_BINS);
 
-  free(hostBins1);
-  free(hostBins2);
+
+  wbTime_start(GPU, "Freeing GPU Memory");
+  //@@ Free the GPU memory here
+  CUDA_CHECK(cudaFree(deviceInput));
+  CUDA_CHECK(cudaFree(deviceBins));
+  wbTime_stop(GPU, "Freeing GPU Memory");
+
+
+  free(hostBins);
   free(hostInput);
   return 0;
 }
