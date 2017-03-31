@@ -5,6 +5,7 @@
 #BSUB -e lsf.err
 #BSUB -q "windfall"
 #BSUB -J module2 
+#BSUB -x
 #---------------------------------------------------------------------
 #BSUB -R gpu
 #BSUB -R "span[ptile=2]"
