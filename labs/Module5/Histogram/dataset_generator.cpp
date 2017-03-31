@@ -84,7 +84,7 @@ static void create_dataset(int datasetNum, size_t input_length,
 }
 
 int main() {
-  base_dir = wbPath_join(wbDirectory_current(), "Histogram", "Dataset");
+  base_dir = wbPath_join(wbDirectory_current(), "Dataset");
 
   create_dataset(0, 16, NUM_BINS);
   create_dataset(1, 1024, NUM_BINS);
